@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>RadioAudit — Orange Sonatel</title>
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23FF6600'/%3E%3Cpath d='M16 7 L16 25' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M11 11 a7 7 0 0 1 10 0' fill='none' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='25' r='2.5' fill='white'/%3E%3C/svg%3E">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#FF6600">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RadioAudit">
+
+<link rel="stylesheet" href="./leaflet.min.css">
+<script src="./leaflet.min.js"></script>
+<script src="./xlsx.min.js"></script>
+<script src="./db.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --brand:#FF6600;--brand-dk:#cc4400;--brand-lt:#fff3eb;
+  --bg:#fff;--bg2:#f7f8fa;--bg3:#f0f1f3;
+  --brd:#e2e4e9;--tx:#0d0f14;--tx2:#4a4f5c;--tx3:#8a8f9e;
+  --ok:#2e7d32;--crit:#e53935;--info:#1565c0;--warn:#f59e0b;
+  --r:12px;--sh:0 2px 12px rgba(0,0,0,.1);--sh2:0 8px 32px rgba(0,0,0,.14);
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;}
+body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--tx);display:flex;flex-direction:column;height:100dvh;}
+.mono{font-family:'JetBrains Mono',monospace;}
+
+#splash{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:opacity .4s;}
+#splash.out{opacity:0;pointer-events:none;}
+.sp-logo{width:78px;height:78px;background:var(--brand);border-radius:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 32px rgba(255,102,0,.35);}
+.sp-logo svg{width:46px;height:46px;}
+.sp-name{font-size:25px;font-weight:800;}
+.sp-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tx3);}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{width:22px;height:22px;border:3px solid var(--brd);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite;}
+
+.view{display:none;flex-direction:column;height:100%;flex:1;min-height:0;}
+.view.active{display:flex;}
+
+/* LOGIN */
+#view-login{align-items:center;justify-content:center;gap:18px;padding:24px;}
+.login-card{width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px;}
+.login-card h1{font-size:22px;font-weight:800;}
+.login-card .sub{font-size:12px;color:var(--tx2);font-family:'JetBrains Mono',monospace;margin-top:-8px;}
+label.fld{font-size:12px;font-weight:700;color:var(--tx2);display:block;margin-bottom:5px;}
+select,input,textarea{width:100%;padding:11px 12px;border:1.5px solid var(--brd);border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;background:var(--bg2);color:var(--tx);outline:none;}
+select:focus,input:focus,textarea:focus{border-color:var(--brand);}
+.btn{padding:12px 16px;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:var(--brand);color:#fff;}
+.btn:disabled{opacity:.5;}
+.btn.sec{background:var(--bg2);color:var(--tx);border:1.5px solid var(--brd);}
+.btn.sm{padding:7px 11px;font-size:12px;border-radius:8px;}
+.btn.danger{background:#fee;color:var(--crit);}
+
+/* HEADER */
+header{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-bottom:1px solid var(--brd);flex-shrink:0;}
+.h-logo{width:32px;height:32px;background:var(--brand);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.h-logo svg{width:19px;height:19px;}
+.h-tit{flex:1;min-width:0;}
+.h-tit b{font-size:15px;font-weight:800;display:block;line-height:1.1;}
+.h-tit span{font-size:10px;color:var(--tx3);font-family:'JetBrains Mono',monospace;}
+.hbtn{width:36px;height:36px;border:none;background:var(--bg2);border-radius:9px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx2);flex-shrink:0;}
+.conn{font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 8px;border-radius:20px;font-weight:600;}
+.conn.on{background:#e8f5e9;color:var(--ok);}
+.conn.off{background:#ffebee;color:var(--crit);}
+
+/* MAIN: map + sheet */
+#map{height:46vh;flex-shrink:0;background:var(--bg2);}
+.sheet{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg);border-top-left-radius:16px;border-top-right-radius:16px;margin-top:-14px;box-shadow:0 -4px 16px rgba(0,0,0,.06);position:relative;z-index:400;}
+.sheet-top{padding:12px 14px 8px;border-bottom:1px solid var(--brd);}
+.searchbar{display:flex;gap:8px;align-items:center;margin-bottom:9px;}
+.searchbar input{flex:1;}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;}
+.chip{padding:6px 12px;border-radius:20px;border:1.5px solid var(--brd);background:var(--bg2);font-size:12px;font-weight:600;color:var(--tx2);cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.chip.active{background:var(--brand);border-color:var(--brand);color:#fff;}
+.count{font-size:11px;color:var(--tx3);font-family:'JetBrains Mono',monospace;padding:6px 14px 2px;}
+.list{flex:1;min-height:0;overflow-y:auto;padding:4px 10px calc(20px + var(--safe-b));}
+.site-row{display:flex;align-items:center;gap:11px;padding:11px;border-radius:10px;background:var(--bg2);margin-bottom:7px;cursor:pointer;}
+.dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+.site-row .nm{flex:1;min-width:0;}
+.site-row .nm b{font-size:14px;font-weight:700;display:block;line-height:1.15;}
+.site-row .nm span{font-size:11px;color:var(--tx3);font-family:'JetBrains Mono',monospace;}
+.tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--bg3);color:var(--tx2);flex-shrink:0;}
+.empty{text-align:center;color:var(--tx3);font-size:13px;padding:40px 20px;}
+
+/* ADMIN */
+.adm-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--brd);flex-shrink:0;}
+.adm-head b{flex:1;font-size:17px;font-weight:800;}
+.tabs{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;}
+.tab{padding:8px 14px;border-radius:9px;border:none;background:var(--bg2);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--tx2);cursor:pointer;white-space:nowrap;}
+.tab.active{background:var(--brand);color:#fff;}
+.adm-body{flex:1;min-height:0;overflow-y:auto;padding:16px 14px calc(30px + var(--safe-b));}
+.panel{display:none;}
+.panel.active{display:block;}
+.drop{border:2px dashed var(--brd);border-radius:12px;padding:26px 16px;text-align:center;color:var(--tx2);cursor:pointer;background:var(--bg2);}
+.drop b{color:var(--brand);}
+.prog{height:8px;background:var(--bg3);border-radius:6px;overflow:hidden;margin-top:12px;display:none;}
+.prog.show{display:block;}
+.prog i{display:block;height:100%;background:var(--brand);width:0;transition:width .2s;}
+.note{font-size:12px;color:var(--tx2);background:var(--bg2);border-radius:9px;padding:10px 12px;line-height:1.6;margin-top:12px;}
+.ref-row{display:flex;align-items:center;gap:9px;padding:10px;border-radius:9px;background:var(--bg2);margin-bottom:7px;}
+.ref-row .ri{flex:1;min-width:0;}
+.ref-row .ri b{font-size:14px;display:block;}
+.ref-row .ri span{font-size:11px;color:var(--tx3);font-family:'JetBrains Mono',monospace;}
+.row2{display:flex;gap:8px;}
+.row2>*{flex:1;}
+.add-card{border:1px solid var(--brd);border-radius:12px;padding:14px;margin-bottom:16px;}
+.add-card h3{font-size:13px;font-weight:800;margin-bottom:10px;color:var(--tx2);}
+.fld-grp{margin-bottom:9px;}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;display:none;align-items:flex-end;justify-content:center;}
+.ov.open{display:flex;}
+.modal{background:#fff;width:100%;max-width:480px;border-radius:18px 18px 0 0;max-height:88vh;display:flex;flex-direction:column;}
+.modal-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--brd);}
+.modal-head b{flex:1;font-size:16px;font-weight:800;}
+.mclose{width:30px;height:30px;border:none;background:var(--bg3);border-radius:50%;font-size:14px;cursor:pointer;}
+.modal-body{padding:16px;overflow-y:auto;}
+.det-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.det-item{background:var(--bg2);border-radius:8px;padding:9px;}
+.det-item .k{font-size:10px;color:var(--tx3);font-family:'JetBrains Mono',monospace;text-transform:uppercase;}
+.det-item .v{font-size:14px;font-weight:700;}
+.sec-row{display:flex;justify-content:space-between;padding:8px 10px;background:var(--bg2);border-radius:8px;margin-bottom:6px;font-size:13px;}
+.sec-row .mono{color:var(--tx2);}
+
+#toast{position:fixed;bottom:calc(24px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:var(--tx);color:#fff;padding:11px 18px;border-radius:24px;font-size:13px;font-weight:600;z-index:2000;opacity:0;pointer-events:none;transition:all .25s;max-width:90%;text-align:center;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.leaflet-popup-content{font-family:'Syne',sans-serif;}
+.pop b{font-size:14px;}
+.pop .mono{font-size:11px;color:var(--tx2);display:block;margin-top:2px;}
+
+/* INCRÉMENT 2 — visites */
+.sd-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tx3);text-transform:uppercase;margin:14px 0 8px;letter-spacing:.4px;}
+.pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+.pill.planifiee{background:#e3f2fd;color:#1565c0;}
+.pill.encours{background:#fff3eb;color:var(--brand-dk);}
+.pill.completee{background:#e8f5e9;color:var(--ok);}
+.pill.areprendre{background:#fff8e1;color:#a06b00;}
+.pill.bon{background:#e8f5e9;color:var(--ok);}
+.pill.degrade{background:#fff8e1;color:#a06b00;}
+.pill.critique{background:#ffebee;color:var(--crit);}
+.vis-row{display:flex;align-items:center;gap:10px;padding:10px 11px;background:var(--bg2);border-radius:9px;margin-bottom:7px;cursor:pointer;}
+.vis-row .vi{flex:1;min-width:0;}
+.vis-row .vi b{font-size:13px;display:block;}
+.vis-row .vi span{font-size:11px;color:var(--tx3);font-family:'JetBrains Mono',monospace;}
+.vform{display:none;flex-direction:column;height:100%;flex:1;min-height:0;}
+.vform.active{display:flex;}
+.vf-body{flex:1;min-height:0;overflow-y:auto;padding:14px 16px;}
+.vsec{margin-bottom:18px;}
+.vsec h4{font-size:12px;font-weight:800;color:var(--tx2);text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:9px;letter-spacing:.4px;}
+.fld-grp{margin-bottom:9px;}
+.srel{border:1.5px solid var(--brd);border-radius:11px;padding:11px;margin-bottom:10px;}
+.srel-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.srel-h b{font-size:14px;font-weight:800;}
+.srel-h .ref{font-size:11px;color:var(--tx3);font-family:'JetBrains Mono',monospace;}
+.srel-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.srel-grid .full{grid-column:1/3;}
+.mini-lbl{font-size:10px;color:var(--tx3);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:3px;}
+.srel input,.srel select{padding:9px 10px;font-size:13px;}
+.ecart{font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;}
+.ecart.ok{background:#e8f5e9;color:var(--ok);}
+.ecart.warn{background:#fff8e1;color:#a06b00;}
+.ecart.crit{background:#ffebee;color:var(--crit);}
+.gps-btn{display:flex;align-items:center;justify-content:center;gap:8px;}
+.gps-out{font-size:12px;color:var(--tx2);font-family:'JetBrains Mono',monospace;margin-top:7px;}
+.vf-actions{display:flex;gap:10px;padding:12px 16px calc(14px + var(--safe-b));border-top:1px solid var(--brd);flex-shrink:0;}
+.vf-actions .btn{flex:1;}
+.mcard{border:1.5px solid var(--brd);border-radius:12px;padding:13px;margin-bottom:10px;cursor:pointer;}
+.mcard b{font-size:15px;font-weight:800;}
+.mcard .mmeta{font-size:11px;color:var(--tx3);font-family:'JetBrains Mono',monospace;margin-top:3px;}
+.mcard .cov{height:6px;background:var(--bg3);border-radius:4px;margin:9px 0 2px;overflow:hidden;}
+.mcard .cov i{display:block;height:100%;background:var(--brand);transition:width .3s;}
+.pick-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;background:var(--bg2);margin-bottom:5px;cursor:pointer;}
+.pick-row input{width:18px;height:18px;flex:none;}
+.pick-row .pn{flex:1;font-size:13px;}
+.pick-row .pn span{font-size:11px;color:var(--tx3);font-family:'JetBrains Mono',monospace;}
+.cfg-com{background:var(--bg2);border-radius:10px;padding:11px;margin-bottom:10px;}
+.media-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:8px;}
+.media-tile{position:relative;aspect-ratio:1;border-radius:9px;overflow:hidden;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.media-tile img{width:100%;height:100%;object-fit:cover;}
+.media-tile .del{position:absolute;top:2px;right:2px;width:20px;height:20px;border:none;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:11px;cursor:pointer;line-height:1;}
+.media-btns{display:flex;gap:8px;}
+.media-btns .btn{flex:1;}
+.act-card{border:1.5px solid var(--brd);border-radius:11px;padding:11px;margin-bottom:9px;}
+.act-card .ah{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.act-card .ah b{flex:1;font-size:12px;color:var(--tx2);font-family:'JetBrains Mono',monospace;}
+.act-card .arm{width:24px;height:24px;border:none;background:#fee;color:var(--crit);border-radius:6px;cursor:pointer;font-size:13px;}
+.act-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.act-grid .full{grid-column:1/3;}
+.act-card input,.act-card select,.act-card textarea{padding:9px 10px;font-size:13px;}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:18px;}
+.kpi{background:var(--bg2);border-radius:12px;padding:13px;}
+.kpi .kn{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1;}
+.kpi .kl{font-size:11px;color:var(--tx3);margin-top:5px;}
+.kpi.crit .kn{color:var(--crit);} .kpi.warn .kn{color:#a06b00;} .kpi.ok .kn{color:var(--ok);}
+.covbar{height:10px;background:var(--bg3);border-radius:6px;overflow:hidden;margin-top:8px;}
+.covbar i{display:block;height:100%;background:var(--brand);transition:width .3s;}
+.dash-sec{margin-bottom:18px;}
+.dash-sec h4{font-size:12px;font-weight:800;color:var(--tx2);text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:10px;letter-spacing:.4px;}
+.bar-row{display:flex;align-items:center;gap:9px;margin-bottom:7px;}
+.bar-row .bl{font-size:12px;width:92px;flex:none;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bar-row .bt{flex:1;height:18px;background:var(--bg3);border-radius:5px;overflow:hidden;}
+.bar-row .bt i{display:block;height:100%;border-radius:5px;min-width:2px;}
+.bar-row .bv{font-size:12px;font-family:'JetBrains Mono',monospace;width:28px;text-align:right;flex:none;}
+.dash-filters{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;}
+.dash-filters select{padding:7px 9px;font-size:12px;width:auto;flex:none;}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="sp-logo"><svg viewBox="0 0 32 32"><path d="M16 7 L16 25" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M11 11 a7 7 0 0 1 10 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M8.5 8 a11 11 0 0 1 15 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".55"/><circle cx="16" cy="25" r="2.6" fill="#fff"/></svg></div>
+  <div class="sp-name">RadioAudit</div>
+  <div class="sp-sub">Orange Sonatel — DRPS/RAN/IRM</div>
+  <div class="spin"></div>
+</div>
+
+<!-- LOGIN -->
+<div id="view-login" class="view">
+  <div class="login-card">
+    <h1>RadioAudit</h1>
+    <div class="sub">Audit terrain des sites radio</div>
+    <div>
+      <label class="fld">Ingénieur</label>
+      <select id="login-eng"><option value="">Chargement…</option></select>
+    </div>
+    <button class="btn" id="login-btn" onclick="doLogin()" disabled>Entrer</button>
+    <div id="login-conn" class="sub" style="text-align:center;"></div>
+  </div>
+</div>
+
+<!-- MISSIONS (sélecteur) -->
+<div id="view-missions" class="view">
+  <header>
+    <div class="h-logo"><svg viewBox="0 0 32 32"><path d="M16 7 L16 25" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M11 11 a7 7 0 0 1 10 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="25" r="2.6" fill="#fff"/></svg></div>
+    <div class="h-tit"><b>Missions</b><span id="mm-eng">—</span></div>
+    <button class="hbtn" onclick="logout()" title="Déconnexion">⎋</button>
+  </header>
+  <div class="adm-body" style="padding-top:14px;">
+    <button class="btn" style="width:100%;margin-bottom:8px;" onclick="openMissionEdit()">+ Nouvelle mission</button>
+    <button class="btn sec" style="width:100%;margin-bottom:14px;" onclick="openDash()">📊 Vue pilotage (toutes missions)</button>
+    <div id="mm-list"></div>
+  </div>
+</div>
+
+<!-- MISSION (création) -->
+<div id="view-mission-edit" class="view">
+  <div class="adm-head">
+    <button class="hbtn" onclick="show('missions')">←</button>
+    <b id="me-title">Nouvelle mission</b>
+  </div>
+  <div class="adm-body">
+    <div class="fld-grp"><span class="mini-lbl">Nom de la mission</span><input id="me-nom" placeholder="ex : Audit Dakar Q2 2026"></div>
+    <div class="row2 fld-grp">
+      <div><span class="mini-lbl">Date début</span><input type="date" id="me-debut"></div>
+      <div><span class="mini-lbl">Date cible</span><input type="date" id="me-cible"></div>
+    </div>
+    <div class="row2 fld-grp">
+      <div><span class="mini-lbl">Responsable</span><select id="me-resp"></select></div>
+      <div><span class="mini-lbl">Statut</span><select id="me-statut"><option>En préparation</option><option>En cours</option><option>Terminée</option></select></div>
+    </div>
+    <div class="sd-sub">Périmètre — <span id="me-count">0</span> site(s) sélectionné(s)</div>
+    <button class="btn sec sm" style="margin-bottom:8px;" onclick="document.getElementById('me-file').click()">📋 Importer une liste (sites ou secteurs)</button>
+    <input type="file" id="me-file" accept=".xlsx,.xls,.csv,.tsv,.txt" style="display:none" onchange="importSiteList(this.files[0])">
+    <div id="me-imp" class="mmeta" style="margin-bottom:8px;"></div>
+    <div class="row2 fld-grp">
+      <input id="me-search" placeholder="Rechercher…" oninput="onPickSearch()">
+      <select id="me-region" onchange="onPickSearch()"><option value="">Toutes régions</option></select>
+    </div>
+    <div class="row2 fld-grp">
+      <button class="btn sec sm" onclick="selectAllFiltered()">✓ Tout sélectionner (<span id="me-nfil">0</span>)</button>
+      <button class="btn sec sm" onclick="clearPick()">Vider</button>
+    </div>
+    <div id="me-pcount" class="mmeta" style="margin-bottom:6px;"></div>
+    <div id="me-picker"></div>
+  </div>
+  <div class="vf-actions">
+    <button class="btn sec" onclick="show('missions')">Annuler</button>
+    <button class="btn" id="me-save" onclick="saveMission()">Enregistrer</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="view-main" class="view">
+  <header>
+    <div class="h-logo"><svg viewBox="0 0 32 32"><path d="M16 7 L16 25" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M11 11 a7 7 0 0 1 10 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="25" r="2.6" fill="#fff"/></svg></div>
+    <div class="h-tit"><b id="h-mission">—</b><span id="h-eng">—</span></div>
+    <span id="h-conn" class="conn off">···</span>
+    <button class="hbtn" onclick="show('missions');loadMissions();" title="Changer de mission">↔</button>
+    <button class="hbtn" onclick="loadAndRender()" title="Rafraîchir">⟳</button>
+    <button class="hbtn" onclick="openDash()" title="Pilotage">📊</button>
+    <button class="hbtn" onclick="openAdmin()" title="Admin">⚙</button>
+  </header>
+  <div id="map"></div>
+  <div class="sheet">
+    <div class="sheet-top">
+      <div class="searchbar">
+        <input id="search" placeholder="Rechercher un site (nom ou GPS)…" oninput="onSearch()">
+      </div>
+      <div class="chips" id="chips-constr">
+        <div class="chip active" data-c="all" onclick="setConstr(this)">Tous</div>
+        <div class="chip" data-c="Nokia" onclick="setConstr(this)">Nokia</div>
+        <div class="chip" data-c="Huawei" onclick="setConstr(this)">Huawei</div>
+        <div class="chip" data-c="audit" onclick="setConstr(this)">Audités</div>
+        <div class="chip" data-c="crit" onclick="setConstr(this)">Critiques</div>
+      </div>
+    </div>
+    <div class="count" id="count">—</div>
+    <div class="list" id="list"></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="view-admin" class="view">
+  <div class="adm-head">
+    <button class="hbtn" onclick="show('main')">←</button>
+    <b>Administration</b>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-p="import" onclick="setTab(this)">Import base</button>
+    <button class="tab" data-p="ing" onclick="setTab(this)">Ingénieurs</button>
+    <button class="tab" data-p="por" onclick="setTab(this)">Porteurs</button>
+  </div>
+  <div class="adm-body">
+    <!-- IMPORT -->
+    <div class="panel active" id="panel-import">
+      <div class="drop" id="drop" onclick="document.getElementById('file').click()">
+        <div style="font-size:30px;">📥</div>
+        <div style="margin-top:6px;">Déposer <b>Base_Sites_OSN</b> (.xlsx / .csv)</div>
+        <div class="mono" style="font-size:11px;color:var(--tx3);margin-top:4px;">colonnes : NOM SECTEUR, NOM SITE, CONSTRUCTEUR, REGION, Longitude, Latitude, Azimuth…</div>
+      </div>
+      <input type="file" id="file" accept=".xlsx,.xls,.csv,.tsv,.txt" style="display:none" onchange="onFile(this.files[0])">
+      <div id="imp-summary"></div>
+      <div class="prog" id="prog"><i id="prog-bar"></i></div>
+      <div id="prog-txt" class="mono" style="font-size:11px;color:var(--tx2);margin-top:6px;"></div>
+      <div class="note">L'import convertit les coordonnées (virgule → point), regroupe les secteurs par site, et écrit dans Supabase en upsert (ré-import sans doublon). Clé site = <span class="mono">nom_site</span>, clé secteur = <span class="mono">nom_secteur</span>.</div>
+    </div>
+    <!-- INGENIEURS -->
+    <div class="panel" id="panel-ing">
+      <div class="add-card">
+        <h3>Ajouter un ingénieur / technicien</h3>
+        <div class="fld-grp"><input id="ing-nom" placeholder="Nom complet"></div>
+        <div class="row2 fld-grp">
+          <select id="ing-fct"><option>Ingénieur</option><option>Technicien</option></select>
+          <input id="ing-eq" placeholder="Équipe">
+        </div>
+        <div class="row2 fld-grp">
+          <input id="ing-mat" placeholder="Matricule">
+          <input id="ing-log" placeholder="Login">
+        </div>
+        <button class="btn" onclick="addIng()">Ajouter</button>
+      </div>
+      <div id="ing-list"></div>
+    </div>
+    <!-- PORTEURS -->
+    <div class="panel" id="panel-por">
+      <div class="add-card">
+        <h3>Ajouter un porteur (entité)</h3>
+        <div class="row2 fld-grp">
+          <input id="por-code" placeholder="Code (ex: ING/ETM)">
+          <input id="por-lib" placeholder="Libellé (optionnel)">
+        </div>
+        <button class="btn" onclick="addPor()">Ajouter</button>
+      </div>
+      <div id="por-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="view-dash" class="view">
+  <div class="adm-head">
+    <button class="hbtn" onclick="show(ACTIVE_MISSION?'main':'missions')">←</button>
+    <b id="dash-mission">Pilotage</b>
+  </div>
+  <div class="dash-filters">
+    <select id="dash-scope" onchange="renderDash()"><option value="">Toutes les missions</option></select>
+    <select id="dash-region" onchange="renderDash()"><option value="">Toutes régions</option></select>
+    <select id="dash-vendor" onchange="renderDash()"><option value="">Tous vendeurs</option><option>Nokia</option><option>Huawei</option></select>
+    <select id="dash-eng" onchange="renderDash()"><option value="">Tous ingénieurs</option></select>
+  </div>
+  <div class="adm-body" id="dash-body"></div>
+</div>
+
+<!-- SITE DETAIL MODAL -->
+<div class="ov" id="site-ov">
+  <div class="modal">
+    <div class="modal-head"><b id="sd-name">Site</b><button class="mclose" onclick="closeOv('site-ov')">✕</button></div>
+    <div class="modal-body" id="sd-body"></div>
+  </div>
+</div>
+
+<!-- VISITE — formulaire -->
+<div class="ov" id="visit-ov" style="align-items:stretch;">
+  <div class="modal" style="border-radius:0;max-height:100dvh;height:100dvh;max-width:560px;">
+    <div class="modal-head"><b id="vf-title">Nouvelle visite</b><button class="mclose" onclick="closeOv('visit-ov')">✕</button></div>
+    <div class="vf-body" id="vf-body"></div>
+    <div class="vf-actions">
+      <button class="btn sec" onclick="closeOv('visit-ov')">Annuler</button>
+      <button class="btn" id="vf-save" onclick="saveVisit()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ============ ÉTAT ============ */
+let ENG = null, SITES = [], VISITES = [], SITE_STATUS = {};
+let ACTIVE_MISSION=null, MISSIONS=[], MISSION_SITES=new Set(), _pickSet=new Set();
+let _listLimit=50, _pickLimit=50;
+let map, canvasR, markers = {};
+let curConstr = 'all', searchQ = '';
+
+/* ============ IndexedDB médias (pattern GeoMission, pour incréments suivants) ============ */
+let _idb = null;
+function openIDB(){
+  if(_idb) return Promise.resolve(_idb);
+  return new Promise((res,rej)=>{
+    const r = indexedDB.open('RadioAuditMedia',1);
+    r.onupgradeneeded = e => e.target.result.createObjectStore('medias');
+    r.onsuccess = e => { _idb = e.target.result; res(_idb); };
+    r.onerror = e => rej(e.target.error);
+  });
+}
+
+/* ============ UTILS ============ */
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+function show(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');if(v==='main'&&map)setTimeout(()=>map.invalidateSize(),100);}
+function closeOv(id){document.getElementById(id).classList.remove('open');}
+function num(v){if(v===null||v===undefined||v==='')return null;const n=parseFloat(String(v).replace(',','.').trim());return isNaN(n)?null:n;}
+function norm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');}
+function colOf(obj){const m={};for(const k in obj)m[norm(k)]=obj[k];return (...names)=>{for(const n of names){if(m[norm(n)]!==undefined)return m[norm(n)];}return '';};}
+
+/* ============ CONNEXION ============ */
+async function checkConn(){
+  const ok = await DB.ping();
+  const el = document.getElementById('h-conn');
+  if(el){el.className='conn '+(ok?'on':'off');el.textContent=ok?'● en ligne':'○ hors ligne';}
+  return ok;
+}
+
+/* ============ LOGIN ============ */
+async function initLogin(){
+  const sel = document.getElementById('login-eng');
+  try{
+    const engs = await DB.getIngenieurs();
+    sel.innerHTML = '<option value="">— Choisir —</option>' +
+      engs.map(e=>`<option value="${e.id}" data-nom="${e.nom_complet}" data-log="${e.login||''}">${e.nom_complet} · ${e.fonction||''}</option>`).join('');
+    document.getElementById('login-btn').disabled=false;
+    document.getElementById('login-conn').textContent='Connecté à Supabase ✓';
+    sel.onchange=()=>{document.getElementById('login-btn').disabled=!sel.value;};
+  }catch(err){
+    sel.innerHTML='<option value="">Erreur de connexion</option>';
+    document.getElementById('login-conn').textContent='⚠ '+err.message;
+  }
+}
+function doLogin(){
+  const sel=document.getElementById('login-eng');const o=sel.options[sel.selectedIndex];
+  if(!sel.value)return;
+  ENG={id:sel.value,nom:o.dataset.nom,login:o.dataset.log};
+  localStorage.setItem('ra_eng',JSON.stringify(ENG));
+  document.getElementById('mm-eng').textContent=ENG.nom;
+  document.getElementById('h-eng').textContent=ENG.nom;
+  show('missions');loadMissions();
+}
+function logout(){ localStorage.removeItem('ra_eng');localStorage.removeItem('ra_mission');ENG=null;ACTIVE_MISSION=null;show('login');initLogin(); }
+
+/* ============ MISSIONS ============ */
+async function ensureSites(){ if(!SITES.length){ try{SITES=await DB.getSites();}catch(e){} } return SITES; }
+
+async function loadMissions(){
+  await ensureIngs();
+  const box=document.getElementById('mm-list');box.innerHTML='<div class="empty">Chargement…</div>';
+  try{
+    MISSIONS=await DB.getMissions();
+    if(!MISSIONS.length){box.innerHTML='<div class="empty">Aucune mission. Créez-en une ↑</div>';return;}
+    box.innerHTML=MISSIONS.map(m=>`<div class="mcard" onclick="enterMission('${m.id}')">
+      <b>${esc(m.nom)}</b>
+      <div class="mmeta">${m.statut||''}${m.date_cible?' · cible '+frDate(m.date_cible):''}${m.responsable_id?' · '+engName(m.responsable_id):''}</div>
+      <div class="cov"><i id="covbar-${m.id}" style="width:0"></i></div>
+      <div class="mmeta" id="cov-${m.id}">périmètre…</div>
+    </div>`).join('');
+    const allVis=await DB.getVisites().catch(()=>[]);
+    for(const m of MISSIONS){
+      try{
+        const ids=(await DB.getMissionSiteIds(m.id)).map(x=>x.site_id);
+        const aud=new Set(allVis.filter(v=>v.mission_id===m.id).map(v=>v.site_id));
+        const done=ids.filter(i=>aud.has(i)).length;
+        const pct=ids.length?Math.round(done/ids.length*100):0;
+        const c=document.getElementById('cov-'+m.id),b=document.getElementById('covbar-'+m.id);
+        if(c)c.textContent=`${done}/${ids.length} sites audités · ${pct}%`;
+        if(b)b.style.width=pct+'%';
+      }catch(e){}
+    }
+  }catch(e){box.innerHTML='<div class="empty">⚠ '+e.message+'</div>';}
+}
+
+async function enterMission(id){
+  let m=MISSIONS.find(x=>x.id===id);
+  if(!m){ try{MISSIONS=await DB.getMissions();m=MISSIONS.find(x=>x.id===id);}catch(e){} }
+  if(!m){toast('Mission introuvable');return;}
+  ACTIVE_MISSION=m;
+  localStorage.setItem('ra_mission',JSON.stringify({id:m.id,nom:m.nom}));
+  try{ MISSION_SITES=new Set((await DB.getMissionSiteIds(id)).map(x=>x.site_id)); }catch(e){ MISSION_SITES=new Set(); }
+  document.getElementById('h-mission').textContent=m.nom;
+  document.getElementById('h-eng').textContent=ENG?ENG.nom:'';
+  show('main');loadAndRender();
+}
+
+async function openMissionEdit(){
+  await Promise.all([ensureIngs(),ensureSites()]);
+  _pickSet=new Set();
+  document.getElementById('me-nom').value='';
+  document.getElementById('me-debut').value=today();
+  document.getElementById('me-cible').value='';
+  document.getElementById('me-resp').innerHTML='<option value="">— responsable —</option>'+ingOptions(ENG&&ENG.id);
+  document.getElementById('me-statut').value='En préparation';
+  const regs=[...new Set(SITES.map(s=>s.region).filter(Boolean))].sort();
+  document.getElementById('me-region').innerHTML='<option value="">Toutes régions</option>'+regs.map(r=>`<option>${esc(r)}</option>`).join('');
+  document.getElementById('me-search').value='';
+  document.getElementById('me-imp').innerHTML='';
+  _pickLimit=PAGE;
+  renderPicker();
+  show('mission-edit');
+}
+function pickFiltered(){
+  const q=norm(document.getElementById('me-search').value);
+  const rg=document.getElementById('me-region').value;
+  return SITES.filter(s=>(!rg||s.region===rg)&&(!q||norm(s.nom_site).includes(q)||norm(s.region).includes(q)));
+}
+function renderPicker(){
+  document.getElementById('me-count').textContent=_pickSet.size;
+  const all=pickFiltered();
+  document.getElementById('me-nfil').textContent=all.length;
+  document.getElementById('me-pcount').textContent=`${Math.min(_pickLimit,all.length)} / ${all.length} affichés · ${_pickSet.size} dans le périmètre`;
+  const shown=all.slice(0,_pickLimit);
+  document.getElementById('me-picker').innerHTML=(shown.map(s=>`<label class="pick-row">
+    <input type="checkbox" ${_pickSet.has(s.id)?'checked':''} onchange="togglePick('${s.id.replace(/'/g,"\\'")}',this.checked)">
+    <span class="pn"><b>${s.nom_site}</b> <span>${s.region||''}</span></span></label>`).join('')
+    + (all.length>_pickLimit?`<button class="btn sec" style="width:100%;margin-top:6px;" onclick="pickMore()">Afficher plus (${all.length-_pickLimit} restants)</button>`:''))
+    || '<div class="empty">Aucun site</div>';
+}
+function onPickSearch(){ _pickLimit=PAGE; renderPicker(); }
+function pickMore(){ _pickLimit+=PAGE; renderPicker(); }
+function selectAllFiltered(){ pickFiltered().forEach(s=>_pickSet.add(s.id)); renderPicker(); toast('Périmètre mis à jour'); }
+function clearPick(){ _pickSet=new Set(); renderPicker(); }
+
+let _secIdx=null;
+async function ensureSecIdx(){
+  if(_secIdx)return _secIdx;
+  _secIdx=new Map();
+  try{ (await DB.getSecteurs()).forEach(sc=>{ if(sc.site_id)_secIdx.set(norm(sc.nom_secteur),sc.site_id); }); }catch(e){}
+  return _secIdx;
+}
+function importSiteList(file){
+  if(!file)return;
+  const ext=file.name.toLowerCase().split('.').pop();
+  document.getElementById('me-imp').textContent='Lecture…';
+  const rd=new FileReader();
+  rd.onload=async e=>{
+    try{
+      let rows=[];
+      if(ext==='xlsx'||ext==='xls'){
+        const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+        rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
+      }else{
+        rows=String(e.target.result).split(/\r?\n/).filter(l=>l.trim()).map(l=>l.split(/[,;\t]/));
+      }
+      // retirer une éventuelle ligne d'en-tête
+      if(rows.length){
+        const h=rows[0].map(x=>norm(x));
+        if(h.some(x=>x.includes('site')||x.includes('secteur')||x==='nom'||x.includes('code')||x.includes('region')||x.includes('plaque')||x.includes('constructeur'))) rows=rows.slice(1);
+      }
+      await matchRows(rows);
+    }catch(err){document.getElementById('me-imp').textContent='⚠ '+err.message;}
+  };
+  if(ext==='xlsx'||ext==='xls')rd.readAsArrayBuffer(file);else rd.readAsText(file,'utf-8');
+}
+async function matchRows(rows){
+  const sIdx=new Map();SITES.forEach(s=>{sIdx.set(norm(s.nom_site),s.id);if(s.code_site)sIdx.set(norm(s.code_site),s.id);});
+  const secIdx=await ensureSecIdx();
+  const resolve=v=>{const n=norm(v);if(!n)return null;let id=sIdx.get(n)||secIdx.get(n);if(!id){const b=norm(String(v).split(/_s\d/i)[0]);if(b&&b!==n)id=sIdx.get(b);}return id||null;};
+  const found=new Set();const miss=[];
+  rows.forEach(row=>{
+    const cells=(Array.isArray(row)?row:[row]).map(c=>String(c).trim()).filter(Boolean);
+    if(!cells.length)return;
+    let id=null;for(const c of cells){id=resolve(c);if(id)break;}
+    if(id){_pickSet.add(id);found.add(id);}else miss.push(cells[0]);
+  });
+  let html=`✓ ${found.size} site(s) ajouté(s) au périmètre`;
+  if(miss.length) html+=` · ⚠ ${miss.length} non reconnu(s)<br><span style="color:var(--tx2)">ex. ta liste : ${esc(miss.slice(0,6).join(', '))}</span>`;
+  html+=`<br><span style="color:var(--tx3)">ex. base : ${esc(SITES.slice(0,6).map(s=>s.nom_site).join(', '))}</span>`;
+  document.getElementById('me-imp').innerHTML=html;
+  renderPicker();
+}
+function togglePick(id,on){ if(on)_pickSet.add(id);else _pickSet.delete(id); document.getElementById('me-count').textContent=_pickSet.size; document.getElementById('me-pcount').textContent=document.getElementById('me-pcount').textContent.replace(/\d+ dans le périmètre/,_pickSet.size+' dans le périmètre'); }
+async function saveMission(){
+  const nom=document.getElementById('me-nom').value.trim();
+  if(!nom){toast('Nom requis');return;}
+  if(!_pickSet.size){toast('Sélectionne au moins un site');return;}
+  const btn=document.getElementById('me-save');btn.disabled=true;btn.textContent='…';
+  try{
+    const res=await DB.saveMission({nom,date_debut:document.getElementById('me-debut').value||null,date_cible:document.getElementById('me-cible').value||null,statut:document.getElementById('me-statut').value,responsable_id:document.getElementById('me-resp').value||null});
+    const mid=res&&res[0]&&res[0].id;
+    await DB.setMissionSites(mid,[..._pickSet]);
+    toast('✓ Mission créée');show('missions');loadMissions();
+  }catch(e){toast('⚠ '+e.message);}
+  finally{btn.disabled=false;btn.textContent='Enregistrer';}
+}
+
+/* ============ CHARGEMENT + RENDU ============ */
+async function loadAndRender(){
+  const ok = await checkConn();
+  if(!ok){toast('Hors ligne — données non rafraîchies');return;}
+  try{
+    toast('Chargement…');
+    SITES = await DB.getSites();
+    try{ VISITES = await DB.getVisites(); }catch(e){ VISITES=[]; }
+    _listLimit=PAGE;
+    computeStatus();
+    renderMap(); renderList();
+  }catch(err){ toast('⚠ '+err.message); }
+}
+function computeStatus(){
+  SITE_STATUS={};
+  const mid=ACTIVE_MISSION&&ACTIVE_MISSION.id;
+  VISITES.forEach(v=>{
+    if(mid && v.mission_id!==mid) return;
+    let s = v.etat_pylone==='Critique' ? 'crit' : 'ok';
+    if(SITE_STATUS[v.site_id]==='crit') s='crit';
+    SITE_STATUS[v.site_id]=s;
+  });
+}
+const STATUS_COLOR={non:'#8a8f9e',ok:'#2e7d32',crit:'#e53935'};
+function statusOf(s){return SITE_STATUS[s.id]||'non';}
+
+/* ---- MAP (circleMarkers sur canvas pour la perf à 3500 points) ---- */
+function initMap(){
+  map = L.map('map',{center:[14.3,-14.5],zoom:7,zoomControl:true});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+  canvasR = L.canvas({padding:0.5});
+}
+function filtered(){
+  return SITES.filter(s=>{
+    if(ACTIVE_MISSION && !MISSION_SITES.has(s.id))return false;
+    if(s.latitude==null||s.longitude==null)return false;
+    if(curConstr==='Nokia'&&s.constructeur!=='Nokia')return false;
+    if(curConstr==='Huawei'&&s.constructeur!=='Huawei')return false;
+    if(curConstr==='audit'&&statusOf(s)==='non')return false;
+    if(curConstr==='crit'&&statusOf(s)!=='crit')return false;
+    if(searchQ){
+      const q=norm(searchQ);
+      const hit = norm(s.nom_site).includes(q) || norm(s.region).includes(q) ||
+                  String(s.latitude).includes(searchQ)||String(s.longitude).includes(searchQ);
+      if(!hit)return false;
+    }
+    return true;
+  });
+}
+function renderMap(){
+  Object.values(markers).forEach(m=>map.removeLayer(m));markers={};
+  const arr=filtered();
+  arr.forEach(s=>{
+    const c=STATUS_COLOR[statusOf(s)];
+    const mk=L.circleMarker([s.latitude,s.longitude],{renderer:canvasR,radius:5,color:'#fff',weight:1,fillColor:c,fillOpacity:.95});
+    mk.on('click',()=>openSite(s.id));
+    mk.bindPopup(`<div class="pop"><b>${s.nom_site}</b><span class="mono">${s.constructeur||''} · ${s.region||''}</span></div>`);
+    mk.addTo(map);markers[s.id]=mk;
+  });
+  if(arr.length){try{map.fitBounds(L.latLngBounds(arr.map(s=>[s.latitude,s.longitude])),{padding:[30,30],maxZoom:13});}catch(e){}}
+}
+/* ---- LIST ---- */
+const PAGE=50;
+function renderList(){
+  const arr=filtered();
+  const aud=arr.filter(s=>statusOf(s)!=='non').length;
+  document.getElementById('count').textContent=`${aud}/${arr.length} audités`;
+  const box=document.getElementById('list');
+  if(!arr.length){box.innerHTML='<div class="empty">Aucun site dans le périmètre.</div>';return;}
+  const shown=arr.slice(0,_listLimit);
+  box.innerHTML=shown.map(s=>{
+    const c=STATUS_COLOR[statusOf(s)];
+    return `<div class="site-row" onclick="openSite('${s.id.replace(/'/g,"\\'")}')">
+      <div class="dot" style="background:${c}"></div>
+      <div class="nm"><b>${s.nom_site}</b><span>${s.region||''} · ${(s.latitude||'').toString().slice(0,8)}, ${(s.longitude||'').toString().slice(0,8)}</span></div>
+      <div class="tag">${s.constructeur||'?'}</div>
+    </div>`;
+  }).join('') + (arr.length>_listLimit?`<button class="btn sec" style="width:100%;margin:6px 0;" onclick="listMore()">Afficher plus (${arr.length-_listLimit} restants)</button>`:'');
+}
+function listMore(){ _listLimit+=PAGE; renderList(); }
+function onSearch(){searchQ=document.getElementById('search').value.trim();_listLimit=PAGE;clearTimeout(window._st);window._st=setTimeout(()=>{renderList();renderMap();},200);}
+function setConstr(el){document.querySelectorAll('#chips-constr .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');curConstr=el.dataset.c;_listLimit=PAGE;renderList();renderMap();}
+
+/* ---- SITE DETAIL ---- */
+/* ----- contexte site courant + référentiels ----- */
+let _CUR=null, _INGS=null, _editId=null;
+let DASH_ACTIONS=[], _dashRegion='', _dashVendor='', _dashEng='', _dashScope='', _perimByMission=new Map(), _perimAll=new Set();
+let _vmedia=[], _delActions=[], _PORS=null;
+const STATUT_OPTS=['Planifiée','En cours','Complétée','À reprendre'];
+const PYLONE_OPTS=['Haubané','Autostable','Mât sur terrasse','Autre'];
+const ETATP_OPTS=['Bon','Dégradé','Critique'];
+const SECETAT_OPTS=['OK','Défaut','Absent'];
+const AZ_WARN=10, AZ_CRIT=20; // seuils d'écart azimuth (°)
+
+async function ensureIngs(){ if(!_INGS){ try{_INGS=await DB.getIngenieurs();}catch(e){_INGS=[];} } return _INGS; }
+function engName(id){ const e=(_INGS||[]).find(x=>x.id===id); return e?e.nom_complet:(id?'Ingénieur':'—'); }
+function frDate(d){ if(!d)return '—'; const p=String(d).slice(0,10).split('-'); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:String(d); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function opt(list,val){ return list.map(o=>`<option ${o===val?'selected':''}>${o}</option>`).join(''); }
+function ingOptions(sel){ return (_INGS||[]).map(e=>`<option value="${e.id}" ${e.id===sel?'selected':''}>${esc(e.nom_complet)} · ${e.fonction||''}</option>`).join(''); }
+
+/* ----- écart azimuth (circulaire 0-360) ----- */
+function circDiff(a,b){ let d=Math.abs(a-b)%360; if(d>180)d=360-d; return d; }
+function azBadge(ref,val){
+  if(ref==null||ref===''||val==null||val==='') return '<span class="ecart ok">—</span>';
+  const d=circDiff(parseFloat(val),parseFloat(ref));
+  const cl=d<=AZ_WARN?'ok':(d<=AZ_CRIT?'warn':'crit');
+  return `<span class="ecart ${cl}">Δ ${d.toFixed(0)}°</span>`;
+}
+function azEcart(inp){
+  const card=inp.closest('.srel'); if(!card)return;
+  card.querySelector('.ecart-wrap').innerHTML=azBadge(inp.dataset.ref,inp.value);
+}
+
+/* ----- GPS terrain vs base ----- */
+function haversine(la1,lo1,la2,lo2){
+  const R=6371000,r=Math.PI/180;
+  const dLa=(la2-la1)*r,dLo=(lo2-lo1)*r;
+  const x=Math.sin(dLa/2)**2+Math.cos(la1*r)*Math.cos(la2*r)*Math.sin(dLo/2)**2;
+  return 2*R*Math.asin(Math.sqrt(x));
+}
+function gpsReadout(lat,lng){
+  let out=`${(+lat).toFixed(6)}, ${(+lng).toFixed(6)}`;
+  if(_CUR&&_CUR.site.latitude!=null&&_CUR.site.longitude!=null){
+    const d=haversine(+lat,+lng,_CUR.site.latitude,_CUR.site.longitude);
+    const col=d>100?'var(--crit)':'var(--ok)';
+    out+=` · <span style="color:${col}">écart base ${d<1000?d.toFixed(0)+' m':(d/1000).toFixed(2)+' km'}</span>`;
+  }
+  return out;
+}
+function captureGPS(){
+  if(!navigator.geolocation){toast('Géolocalisation indisponible');return;}
+  toast('Localisation…');
+  navigator.geolocation.getCurrentPosition(p=>{
+    document.getElementById('vf-lat').value=p.coords.latitude;
+    document.getElementById('vf-lng').value=p.coords.longitude;
+    document.getElementById('vf-gps').innerHTML=gpsReadout(p.coords.latitude,p.coords.longitude);
+    toast('✓ Position relevée');
+  },()=>toast('⚠ Position refusée'),{enableHighAccuracy:true,timeout:10000});
+}
+
+/* ----- DÉTAIL SITE ----- */
+async function openSite(id){
+  const s=SITES.find(x=>x.id===id);if(!s)return;
+  _CUR={site:s,secteurs:[],visites:[]};
+  if(markers[id]){map.setView([s.latitude,s.longitude],14);markers[id].openPopup();}
+  document.getElementById('sd-name').textContent=s.nom_site;
+  renderSiteDetail();
+  document.getElementById('site-ov').classList.add('open');
+  try{
+    const [secs,vis]=await Promise.all([DB.getSecteurs(id),DB.getVisites(id),ensureIngs()]);
+    _CUR.secteurs=secs;_CUR.visites=vis;
+    renderSiteDetail();
+  }catch(e){toast('⚠ '+e.message);}
+}
+function renderSiteDetail(){
+  const {site:s,secteurs,visites}=_CUR;
+  const hist=visites.length?visites.map(v=>`<div class="vis-row" onclick="openVisit('${v.id}')">
+      <div class="vi"><b>${frDate(v.date_visite)}</b><span>${engName(v.ingenieur_id)}${v.mission?' · '+esc(v.mission):''}</span></div>
+      ${v.etat_pylone?`<span class="pill ${norm(v.etat_pylone)}">${v.etat_pylone}</span>`:''}
+      <span class="pill ${norm(v.statut)}">${v.statut}</span></div>`).join('')
+    :'<div class="empty" style="padding:12px;">Aucune visite — lancez la première.</div>';
+  const secList=secteurs.length?secteurs.map(sc=>`<div class="sec-row"><b>${sc.nom_secteur}</b><span class="mono">Az ${sc.azimuth_ref??'?'}° · ${sc.typo4g||sc.typo||''}</span></div>`).join(''):'<div class="empty">Aucun secteur</div>';
+  document.getElementById('sd-body').innerHTML=`<div class="det-grid">
+    <div class="det-item"><div class="k">Constructeur</div><div class="v">${s.constructeur||'—'}</div></div>
+    <div class="det-item"><div class="k">Région</div><div class="v">${s.region||'—'}</div></div>
+    <div class="det-item"><div class="k">Département</div><div class="v">${s.departement||'—'}</div></div>
+    <div class="det-item"><div class="k">Commune</div><div class="v">${s.commune||'—'}</div></div>
+    <div class="det-item"><div class="k">Latitude</div><div class="v mono">${s.latitude??'—'}</div></div>
+    <div class="det-item"><div class="k">Longitude</div><div class="v mono">${s.longitude??'—'}</div></div>
+  </div>
+  <button class="btn" style="width:100%;" onclick="openVisitForm()">+ Nouvelle visite</button>
+  <div class="sd-sub">Historique des visites (${visites.length})</div>${hist}
+  <div class="sd-sub">Secteurs de référence (${secteurs.length})</div>${secList}`;
+}
+
+/* ----- FORMULAIRE DE VISITE ----- */
+async function openVisit(id){ openVisitForm(id); }
+async function openVisitForm(visiteId){
+  if(!_CUR)return;
+  await ensureIngs();
+  _editId=visiteId||null;
+  _vmedia=[];_delActions=[];
+  await Promise.all([ensureIngs(),ensurePorteurs()]);
+  const v=visiteId?_CUR.visites.find(x=>x.id===visiteId):null;
+  let relMap={};
+  if(visiteId){ try{ (await DB.getReleves(visiteId)).forEach(r=>relMap[r.secteur_id]=r); }catch(e){} }
+  document.getElementById('vf-title').textContent=(v?'Visite — ':'Nouvelle visite — ')+_CUR.site.nom_site;
+  const cards=_CUR.secteurs.length?_CUR.secteurs.map(sc=>{
+    const r=relMap[sc.id]||{};
+    return `<div class="srel" data-sid="${sc.id}" ${r.id?`data-rid="${r.id}"`:''}>
+      <div class="srel-h"><b>${sc.nom_secteur}</b><span class="ref">Az réf ${sc.azimuth_ref??'?'}°</span></div>
+      <div class="srel-grid">
+        <div><span class="mini-lbl">Azimuth relevé (°)</span><input type="number" class="r-az" value="${r.azimuth_releve??''}" data-ref="${sc.azimuth_ref??''}" oninput="azEcart(this)"></div>
+        <div><span class="mini-lbl">Écart azimuth</span><div class="ecart-wrap">${azBadge(sc.azimuth_ref,r.azimuth_releve)}</div></div>
+        <div><span class="mini-lbl">HBA (m)</span><input type="number" class="r-hba" value="${r.hba_releve??''}" placeholder="(commun)" ${r.hba_releve!=null?'data-edited="1"':''} oninput="this.dataset.edited='1'"></div>
+        <div><span class="mini-lbl">Inclinaison (°)</span><input type="number" class="r-tilt" value="${r.inclinaison??''}"></div>
+        <div><span class="mini-lbl">Type antenne</span><input class="r-type" value="${esc(r.type_antenne)}" placeholder="(commun)" ${r.type_antenne?'data-edited="1"':''} oninput="this.dataset.edited='1'"></div>
+        <div><span class="mini-lbl">État</span><select class="r-etat">${opt(SECETAT_OPTS,r.etat||'OK')}</select></div>
+        <div class="full"><span class="mini-lbl">Nb antennes</span><input type="number" class="r-nb" value="${r.nb_antennes??1}"></div>
+      </div></div>`;
+  }).join(''):'<div class="empty">Aucun secteur de référence pour ce site.</div>';
+  document.getElementById('vf-body').innerHTML=`
+    <div class="vsec"><h4>Identification</h4>
+      <div class="fld-grp"><span class="mini-lbl">Ingénieur</span><select id="vf-ing">${ingOptions(v?v.ingenieur_id:(ENG&&ENG.id))}</select></div>
+      <div class="row2 fld-grp">
+        <div><span class="mini-lbl">Date</span><input type="date" id="vf-date" value="${v?String(v.date_visite).slice(0,10):today()}"></div>
+        <div><span class="mini-lbl">Statut</span><select id="vf-statut">${opt(STATUT_OPTS,v?v.statut:'En cours')}</select></div>
+      </div>
+      <div class="fld-grp"><span class="mini-lbl">Mission</span><div class="cfg-com" style="font-weight:700;margin-bottom:0;">${ACTIVE_MISSION?esc(ACTIVE_MISSION.nom):'—'}</div></div>
+    </div>
+    <div class="vsec"><h4>Infrastructure pylône</h4>
+      <div class="row2 fld-grp">
+        <div><span class="mini-lbl">Type</span><select id="vf-typylone">${opt([''].concat(PYLONE_OPTS),v?v.type_pylone:'')}</select></div>
+        <div><span class="mini-lbl">Hauteur (m)</span><input type="number" id="vf-hauteur" value="${v&&v.hauteur_pylone!=null?v.hauteur_pylone:''}"></div>
+      </div>
+      <div class="fld-grp"><span class="mini-lbl">État général</span><select id="vf-etatp">${opt([''].concat(ETATP_OPTS),v?v.etat_pylone:'')}</select></div>
+    </div>
+    <div class="vsec"><h4>Position terrain</h4>
+      <button class="btn sec gps-btn" onclick="captureGPS()">📍 Capturer ma position GPS</button>
+      <input type="hidden" id="vf-lat" value="${v&&v.lat_releve!=null?v.lat_releve:''}">
+      <input type="hidden" id="vf-lng" value="${v&&v.lng_releve!=null?v.lng_releve:''}">
+      <div class="gps-out" id="vf-gps">${v&&v.lat_releve!=null?gpsReadout(v.lat_releve,v.lng_releve):'Position non relevée'}</div>
+    </div>
+    <div class="vsec"><h4>Relevés par secteur</h4>
+      <div class="cfg-com">
+        <div class="row2">
+          <div><span class="mini-lbl">HBA commune (m)</span><input type="number" id="vf-hba-com" oninput="propagateCommon()"></div>
+          <div><span class="mini-lbl">Type antenne commun</span><input id="vf-type-com" oninput="propagateCommon()"></div>
+        </div>
+        <button class="btn sec sm" style="margin-top:8px;width:100%;" onclick="applyCommon()">Tout remettre à la valeur commune</button>
+      </div>
+      <div id="vf-cards">${cards}</div>
+      <button class="btn sec" style="width:100%;margin-top:4px;" onclick="addSectorCard()">+ Ajouter un secteur (terrain)</button>
+    </div>
+    <div class="vsec"><h4>Médias</h4>
+      <div class="media-btns">
+        <button class="btn sec sm" onclick="document.getElementById('vf-photo').click()">📷 Photo</button>
+        <button class="btn sec sm" onclick="document.getElementById('vf-video').click()">🎥 Vidéo</button>
+      </div>
+      <input type="file" id="vf-photo" accept="image/*" capture="environment" style="display:none" onchange="addMediaFile(this.files[0],'photo');this.value=''">
+      <input type="file" id="vf-video" accept="video/*" style="display:none" onchange="addMediaFile(this.files[0],'video');this.value=''">
+      <div class="media-grid" id="vf-media-grid"></div>
+    </div>
+    <div class="vsec"><h4>Actions / recommandations</h4>
+      <div id="vf-actions-list"></div>
+      <button class="btn sec" style="width:100%;" onclick="addActionCard()">+ Ajouter une action</button>
+    </div>
+    <div class="vsec"><h4>Observations</h4>
+      <div class="fld-grp"><span class="mini-lbl">Notes</span><textarea id="vf-notes" rows="2">${v?esc(v.notes):''}</textarea></div>
+      <div class="fld-grp"><span class="mini-lbl">Problèmes identifiés</span><textarea id="vf-prob" rows="2">${v?esc(v.problemes):''}</textarea></div>
+    </div>`;
+  document.getElementById('visit-ov').classList.add('open');
+  renderMedia();
+  if(visiteId){
+    try{
+      const [meds,acts]=await Promise.all([DB.getMedias(visiteId),DB.getActions(`select=*&visite_id=eq.${visiteId}&order=created_at`)]);
+      for(const m of meds){ const ent={id:m.id,local_id:m.local_id,type:m.type,_existing:true}; try{const b=await idbGet(m.local_id); if(b)ent._url=URL.createObjectURL(b);}catch(e){} _vmedia.push(ent); }
+      renderMedia(); renderActions(acts);
+    }catch(e){}
+  } else { renderActions([]); }
+}
+
+function propagateCommon(){
+  const h=document.getElementById('vf-hba-com').value, t=document.getElementById('vf-type-com').value;
+  document.querySelectorAll('#vf-cards .srel').forEach(c=>{
+    const hf=c.querySelector('.r-hba'), tf=c.querySelector('.r-type');
+    if(h!=='' && !hf.dataset.edited) hf.value=h;
+    if(t!=='' && !tf.dataset.edited) tf.value=t;
+  });
+}
+function applyCommon(){ // force : remet la valeur commune partout (efface les surcharges)
+  const h=document.getElementById('vf-hba-com').value, t=document.getElementById('vf-type-com').value;
+  document.querySelectorAll('#vf-cards .srel').forEach(c=>{
+    const hf=c.querySelector('.r-hba'), tf=c.querySelector('.r-type');
+    if(h!==''){hf.value=h;delete hf.dataset.edited;}
+    if(t!==''){tf.value=t;delete tf.dataset.edited;}
+  });
+  toast('Valeur commune appliquée à tous');
+}
+function addSectorCard(){
+  const nm=(prompt('Nom du secteur trouvé (ex : '+_CUR.site.nom_site+'_S4)')||'').trim();
+  if(!nm)return;
+  const card=document.createElement('div');
+  card.className='srel';card.dataset.sid=nm;card.dataset.new='1';
+  card.innerHTML=`<div class="srel-h"><b>${esc(nm)}</b><span class="ref" style="color:var(--brand)">terrain</span></div>
+    <div class="srel-grid">
+      <div><span class="mini-lbl">Azimuth relevé (°)</span><input type="number" class="r-az" data-ref="" oninput="azEcart(this)"></div>
+      <div><span class="mini-lbl">Écart azimuth</span><div class="ecart-wrap"><span class="ecart ok">nouv.</span></div></div>
+      <div><span class="mini-lbl">HBA (m)</span><input type="number" class="r-hba" placeholder="(commun)" oninput="this.dataset.edited='1'"></div>
+      <div><span class="mini-lbl">Inclinaison (°)</span><input type="number" class="r-tilt"></div>
+      <div><span class="mini-lbl">Type antenne</span><input class="r-type" placeholder="(commun)" oninput="this.dataset.edited='1'"></div>
+      <div><span class="mini-lbl">État</span><select class="r-etat">${opt(SECETAT_OPTS,'OK')}</select></div>
+      <div class="full"><span class="mini-lbl">Nb antennes</span><input type="number" class="r-nb" value="1"></div>
+    </div>`;
+  document.getElementById('vf-cards').appendChild(card);
+}
+
+/* ---- IndexedDB médias ---- */
+function idbPut(k,v){return openIDB().then(db=>new Promise((res,rej)=>{const t=db.transaction('medias','readwrite');t.objectStore('medias').put(v,k);t.oncomplete=()=>res();t.onerror=()=>rej(t.error);}));}
+function idbGet(k){return openIDB().then(db=>new Promise((res,rej)=>{const t=db.transaction('medias','readonly');const r=t.objectStore('medias').get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}));}
+function idbDel(k){return openIDB().then(db=>new Promise((res)=>{const t=db.transaction('medias','readwrite');t.objectStore('medias').delete(k);t.oncomplete=()=>res();t.onerror=()=>res();}));}
+
+/* ---- MÉDIAS (binaire local, référence en base) ---- */
+const MAX_PHOTO=10, MAX_VIDEO=2, MAX_VIDEO_MB=50;
+async function addMediaFile(file,type){
+  if(!file)return;
+  const cnt=_vmedia.filter(m=>!m._del&&m.type===type).length;
+  if(type==='photo'&&cnt>=MAX_PHOTO){toast('Max '+MAX_PHOTO+' photos');return;}
+  if(type==='video'&&cnt>=MAX_VIDEO){toast('Max '+MAX_VIDEO+' vidéos');return;}
+  if(type==='video'&&file.size>MAX_VIDEO_MB*1048576){toast('Vidéo > '+MAX_VIDEO_MB+' Mo');return;}
+  const lid=DB.uuid();
+  try{ await idbPut(lid,file); }catch(e){ toast('⚠ stockage local impossible'); return; }
+  _vmedia.push({local_id:lid,type,_url:URL.createObjectURL(file)});
+  renderMedia();
+}
+function renderMedia(){
+  const box=document.getElementById('vf-media-grid'); if(!box)return;
+  const items=_vmedia.filter(m=>!m._del);
+  box.innerHTML=items.map(m=>{
+    const idx=_vmedia.indexOf(m);
+    const inner=(m.type==='photo'&&m._url)?`<img src="${m._url}">`:'🎥';
+    return `<div class="media-tile">${inner}<button class="del" onclick="delMediaItem(${idx})">✕</button></div>`;
+  }).join('')||'<div class="mmeta" style="grid-column:1/5;">Aucun média</div>';
+}
+function delMediaItem(i){
+  const m=_vmedia[i]; if(!m)return;
+  if(m._existing){ m._del=true; } else { idbDel(m.local_id); _vmedia.splice(i,1); }
+  renderMedia();
+}
+
+/* ---- ACTIONS ---- */
+const PRIORITE_OPTS=['Critique','Haute','Normale','Faible'];
+const ACTETAT_OPTS=['Ouverte','En cours','Résolue','Annulée'];
+async function ensurePorteurs(){ if(!_PORS){ try{_PORS=await DB.getPorteurs();}catch(e){_PORS=[];} } return _PORS; }
+function porOptions(sel){ return '<option value="">— porteur —</option>'+(_PORS||[]).map(p=>`<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(p.code)}</option>`).join(''); }
+function actCardHTML(a){
+  a=a||{};
+  return `<div class="act-card" ${a.id?`data-aid="${a.id}"`:''}>
+    <div class="ah"><b>ACTION</b><button class="arm" onclick="this.closest('.act-card').remove();${a.id?`_delActions.push('${a.id}')`:''}">🗑</button></div>
+    <div class="act-grid">
+      <div class="full"><span class="mini-lbl">Description</span><textarea class="a-desc" rows="2">${esc(a.description)}</textarea></div>
+      <div><span class="mini-lbl">Priorité</span><select class="a-prio">${opt(PRIORITE_OPTS,a.priorite||'Normale')}</select></div>
+      <div><span class="mini-lbl">Délai</span><input type="date" class="a-delai" value="${a.delai?String(a.delai).slice(0,10):''}"></div>
+      <div><span class="mini-lbl">Porteur</span><select class="a-porteur">${porOptions(a.porteur_id)}</select></div>
+      <div><span class="mini-lbl">État</span><select class="a-etat">${opt(ACTETAT_OPTS,a.etat||'Ouverte')}</select></div>
+      <div class="full"><span class="mini-lbl">Commentaire de suivi</span><input class="a-com" value="${esc(a.commentaire)}"></div>
+    </div></div>`;
+}
+function renderActions(list){ document.getElementById('vf-actions-list').innerHTML=(list||[]).map(actCardHTML).join(''); }
+function addActionCard(){ document.getElementById('vf-actions-list').insertAdjacentHTML('beforeend',actCardHTML({})); }
+
+async function saveVisit(){
+  if(!_CUR)return;
+  const btn=document.getElementById('vf-save');btn.disabled=true;btn.textContent='Enregistrement…';
+  const V={
+    site_id:_CUR.site.id,
+    mission_id:ACTIVE_MISSION?ACTIVE_MISSION.id:null,
+    ingenieur_id:document.getElementById('vf-ing').value||null,
+    date_visite:document.getElementById('vf-date').value||today(),
+    statut:document.getElementById('vf-statut').value,
+    type_pylone:document.getElementById('vf-typylone').value||null,
+    hauteur_pylone:num(document.getElementById('vf-hauteur').value),
+    etat_pylone:document.getElementById('vf-etatp').value||null,
+    lat_releve:num(document.getElementById('vf-lat').value),
+    lng_releve:num(document.getElementById('vf-lng').value),
+    notes:document.getElementById('vf-notes').value.trim()||null,
+    problemes:document.getElementById('vf-prob').value.trim()||null,
+    updated_at:new Date().toISOString()
+  };
+  try{
+    let vid=_editId;
+    if(vid){ await DB.saveVisite(Object.assign({id:vid},V)); }
+    else   { const res=await DB.saveVisite(V); vid=res&&res[0]&&res[0].id; }
+    // config commune
+    const hcom=num(document.getElementById('vf-hba-com').value);
+    const tcom=document.getElementById('vf-type-com').value.trim()||null;
+    // relevés (un par secteur)
+    const cards=document.querySelectorAll('#vf-cards .srel');
+    for(const c of cards){
+      const sid=c.dataset.sid;
+      const az=num(c.querySelector('.r-az').value);
+      if(c.dataset.new){
+        await DB.addSecteur({nom_secteur:sid,site_id:_CUR.site.id,origine:'terrain',azimuth_ref:az});
+      }
+      const hloc=num(c.querySelector('.r-hba').value);
+      const tloc=c.querySelector('.r-type').value.trim()||null;
+      const r={
+        visite_id:vid, secteur_id:sid,
+        nb_antennes:parseInt(c.querySelector('.r-nb').value)||1,
+        azimuth_releve:az,
+        hba_releve: hloc!=null?hloc:hcom,
+        type_antenne: tloc||tcom,
+        inclinaison:num(c.querySelector('.r-tilt').value),
+        etat:c.querySelector('.r-etat').value
+      };
+      if(c.dataset.rid) r.id=c.dataset.rid;
+      await DB.saveReleve(r);
+    }
+    // médias (binaire déjà en IndexedDB ; on enregistre/supprime les références)
+    for(const m of _vmedia){
+      if(m._existing && m._del){ try{await DB.delMedia(m.id);await idbDel(m.local_id);}catch(e){} }
+      else if(!m._existing){ try{await DB.saveMedia({visite_id:vid,type:m.type,local_id:m.local_id});}catch(e){} }
+    }
+    // actions
+    for(const id of _delActions){ try{await DB.delAction(id);}catch(e){} }
+    for(const c of document.querySelectorAll('#vf-actions-list .act-card')){
+      const desc=c.querySelector('.a-desc').value.trim();
+      if(!desc)continue;
+      const a={visite_id:vid,description:desc,priorite:c.querySelector('.a-prio').value,delai:c.querySelector('.a-delai').value||null,porteur_id:c.querySelector('.a-porteur').value||null,etat:c.querySelector('.a-etat').value,commentaire:c.querySelector('.a-com').value.trim()||null,updated_at:new Date().toISOString()};
+      if(c.dataset.aid)a.id=c.dataset.aid;
+      await DB.saveAction(a);
+    }
+    toast('✓ Visite enregistrée');
+    closeOv('visit-ov');
+    _CUR.secteurs=await DB.getSecteurs(_CUR.site.id);
+    VISITES=await DB.getVisites();
+    _CUR.visites=VISITES.filter(v=>v.site_id===_CUR.site.id);
+    computeStatus(); renderMap(); renderList(); renderSiteDetail();
+  }catch(e){ toast('⚠ '+e.message); }
+  finally{ btn.disabled=false; btn.textContent='Enregistrer'; }
+}
+
+/* ============ ADMIN ============ */
+function openAdmin(){show('admin');setTab(document.querySelector('.tab'));loadRefs();}
+function setTab(el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('panel-'+el.dataset.p).classList.add('active');}
+
+/* ---- IMPORT ---- */
+let parsedSites=[],parsedSecs=[];
+function onFile(file){
+  if(!file)return;
+  const summary=document.getElementById('imp-summary');summary.innerHTML='<div class="mono" style="font-size:12px;margin-top:12px;">Lecture de '+file.name+'…</div>';
+  const ext=file.name.toLowerCase().split('.').pop();
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      let rows=[];
+      if(ext==='xlsx'||ext==='xls'){
+        const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});
+        rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+      }else{
+        rows=parseText(e.target.result);
+      }
+      buildImport(rows);
+    }catch(err){summary.innerHTML='<div class="note" style="color:var(--crit)">⚠ '+err.message+'</div>';}
+  };
+  if(ext==='xlsx'||ext==='xls')reader.readAsArrayBuffer(file);else reader.readAsText(file,'utf-8');
+}
+function parseText(txt){
+  const lines=txt.split(/\r?\n/).filter(l=>l.trim());
+  if(!lines.length)return [];
+  const delim = lines[0].includes('\t')?'\t':(lines[0].includes(';')?';':',');
+  const head=lines[0].split(delim).map(h=>h.trim());
+  return lines.slice(1).map(l=>{const c=l.split(delim);const o={};head.forEach((h,i)=>o[h]=(c[i]||'').trim());return o;});
+}
+function buildImport(rows){
+  const sitesMap=new Map();parsedSecs=[];
+  rows.forEach(r=>{
+    const g=colOf(r);
+    const nomSec=String(g('NOM SECTEUR','nom_secteur')).trim();
+    const nomSite=String(g('NOM SITE','nom_site')).trim();
+    if(!nomSec||!nomSite)return;
+    if(!sitesMap.has(nomSite)){
+      sitesMap.set(nomSite,{
+        id:nomSite,nom_site:nomSite,
+        constructeur:String(g('CONSTRUCTEUR','constructeur')).trim()||null,
+        plaque:String(g('PLAQUE','plaque')).trim()||null,
+        region:String(g('REGION','region')).trim()||null,
+        departement:String(g('Departement','departement','département')).trim()||null,
+        commune:String(g('Commune','commune')).trim()||null,
+        longitude:num(g('Longitude','longitude','lon','lng')),
+        latitude:num(g('Latitude','latitude','lat'))
+      });
+    }
+    parsedSecs.push({
+      id:nomSec,site_id:nomSite,nom_secteur:nomSec,
+      typo2g:String(g('Typo2G','typo2g')).trim()||null,
+      typo3g:String(g('Typo3G','typo3g')).trim()||null,
+      typo4g:String(g('Typo4G','typo4g')).trim()||null,
+      typo5g:String(g('Typo5G','typo5g')).trim()||null,
+      typo:String(g('Typo','typo')).trim()||null,
+      azimuth_ref:num(g('Azimuth','azimuth','azimut'))
+    });
+  });
+  parsedSites=[...sitesMap.values()];
+  const noCoord=parsedSites.filter(s=>s.latitude==null||s.longitude==null).length;
+  document.getElementById('imp-summary').innerHTML=
+    `<div class="note"><b>${parsedSites.length}</b> sites · <b>${parsedSecs.length}</b> secteurs détectés.`+
+    (noCoord?` <span style="color:var(--warn)">⚠ ${noCoord} sites sans coordonnées (ne s'afficheront pas sur la carte).</span>`:'')+
+    `</div><button class="btn" style="width:100%;margin-top:10px;" onclick="runImport()">Importer vers Supabase</button>`;
+}
+async function runImport(){
+  if(!parsedSites.length){toast('Rien à importer');return;}
+  const prog=document.getElementById('prog'),bar=document.getElementById('prog-bar'),txt=document.getElementById('prog-txt');
+  prog.classList.add('show');
+  try{
+    await DB.importBase(parsedSites,parsedSecs,(phase,done,total)=>{
+      const pct=total?Math.round(done/total*100):0;
+      bar.style.width=pct+'%';txt.textContent=`${phase} : ${done}/${total}`;
+    });
+    bar.style.width='100%';txt.textContent='Import terminé ✓';
+    toast('✓ Base importée');
+    loadAndRender();
+  }catch(err){txt.textContent='⚠ '+err.message;txt.style.color='var(--crit)';}
+}
+
+/* ---- REFERENTIELS CRUD ---- */
+async function loadRefs(){
+  try{
+    const ings=await DB.getIngenieurs();
+    document.getElementById('ing-list').innerHTML=ings.map(e=>`<div class="ref-row">
+      <div class="ri"><b>${e.nom_complet}</b><span>${e.fonction||''} ${e.login?'· '+e.login:''} ${e.equipe?'· '+e.equipe:''}</span></div>
+      <button class="btn sec sm" onclick="delIng('${e.id}','${(e.nom_complet||'').replace(/'/g,"")}')">Suppr.</button>
+    </div>`).join('')||'<div class="empty">Aucun</div>';
+    const pors=await DB.getPorteurs();
+    document.getElementById('por-list').innerHTML=pors.map(p=>`<div class="ref-row">
+      <div class="ri"><b>${p.code}</b><span>${p.libelle||''}</span></div>
+      <button class="btn sec sm" onclick="delPor('${p.id}','${(p.code||'').replace(/'/g,"")}')">Suppr.</button>
+    </div>`).join('')||'<div class="empty">Aucun</div>';
+  }catch(e){toast('⚠ '+e.message);}
+}
+async function addIng(){
+  const nom=document.getElementById('ing-nom').value.trim();if(!nom){toast('Nom requis');return;}
+  try{await DB.addIngenieur({nom_complet:nom,fonction:document.getElementById('ing-fct').value,equipe:document.getElementById('ing-eq').value.trim()||null,matricule:document.getElementById('ing-mat').value.trim()||null,login:document.getElementById('ing-log').value.trim()||null});
+    ['ing-nom','ing-eq','ing-mat','ing-log'].forEach(i=>document.getElementById(i).value='');toast('✓ Ajouté');loadRefs();
+  }catch(e){toast('⚠ '+e.message);}
+}
+async function delIng(id,nom){if(!confirm('Supprimer '+nom+' ?'))return;try{await DB.delIngenieur(id);toast('Supprimé');loadRefs();}catch(e){toast('⚠ '+e.message);}}
+async function addPor(){
+  const code=document.getElementById('por-code').value.trim();if(!code){toast('Code requis');return;}
+  try{await DB.addPorteur({code,libelle:document.getElementById('por-lib').value.trim()||null});
+    document.getElementById('por-code').value='';document.getElementById('por-lib').value='';toast('✓ Ajouté');loadRefs();
+  }catch(e){toast('⚠ '+e.message);}
+}
+async function delPor(id,code){if(!confirm('Supprimer '+code+' ?'))return;try{await DB.delPorteur(id);toast('Supprimé');loadRefs();}catch(e){toast('⚠ '+e.message);}}
+
+/* ============ DASHBOARD DE PILOTAGE ============ */
+function porName(id){ const p=(_PORS||[]).find(x=>x.id===id); return p?p.code:null; }
+function weekStart(d){ const dt=new Date(String(d).slice(0,10)); const day=(dt.getDay()+6)%7; dt.setDate(dt.getDate()-day); return dt; }
+function bars(obj,colorFn,max){
+  const keys=Object.keys(obj); if(!keys.length)return '<div class="mmeta">Aucune donnée</div>';
+  const mx=max||Math.max(1,...keys.map(k=>obj[k]));
+  return keys.map(k=>`<div class="bar-row"><span class="bl">${esc(k)}</span><div class="bt"><i style="width:${Math.round(obj[k]/mx*100)}%;background:${colorFn(k)}"></i></div><span class="bv">${obj[k]}</span></div>`).join('');
+}
+async function openDash(){
+  show('dash');
+  await Promise.all([ensureIngs(),ensurePorteurs(),ensureSites()]);
+  if(!MISSIONS.length){ try{MISSIONS=await DB.getMissions();}catch(e){} }
+  document.getElementById('dash-body').innerHTML='<div class="empty">Calcul…</div>';
+  const sc=document.getElementById('dash-scope');
+  sc.innerHTML='<option value="">Toutes les missions</option>'+MISSIONS.map(m=>`<option value="${m.id}">${esc(m.nom)}</option>`).join('');
+  sc.value=ACTIVE_MISSION?ACTIVE_MISSION.id:'';
+  const regs=[...new Set(SITES.map(s=>s.region).filter(Boolean))].sort();
+  document.getElementById('dash-region').innerHTML='<option value="">Toutes régions</option>'+regs.map(r=>`<option>${esc(r)}</option>`).join('');
+  document.getElementById('dash-eng').innerHTML='<option value="">Tous ingénieurs</option>'+(_INGS||[]).map(e=>`<option value="${e.id}">${esc(e.nom_complet)}</option>`).join('');
+  try{
+    const [acts,perim,vis]=await Promise.all([DB.getActions(),DB.getAllMissionSites(),DB.getVisites()]);
+    DASH_ACTIONS=acts; VISITES=vis;
+    _perimByMission=new Map(); _perimAll=new Set();
+    perim.forEach(r=>{ if(!_perimByMission.has(r.mission_id))_perimByMission.set(r.mission_id,new Set()); _perimByMission.get(r.mission_id).add(r.site_id); _perimAll.add(r.site_id); });
+  }catch(e){ DASH_ACTIONS=[]; }
+  renderDash();
+}
+function renderDash(){
+  _dashScope=document.getElementById('dash-scope').value;
+  _dashRegion=document.getElementById('dash-region').value;
+  _dashVendor=document.getElementById('dash-vendor').value;
+  _dashEng=document.getElementById('dash-eng').value;
+  document.getElementById('dash-mission').textContent=_dashScope?((MISSIONS.find(m=>m.id===_dashScope)||{}).nom||'Mission'):'Toutes les missions';
+  const perimIds=_dashScope?(_perimByMission.get(_dashScope)||new Set()):_perimAll;
+  let visScope=_dashScope?VISITES.filter(v=>v.mission_id===_dashScope):VISITES.slice();
+  let perim=SITES.filter(s=>perimIds.has(s.id));
+  if(_dashRegion)perim=perim.filter(s=>s.region===_dashRegion);
+  if(_dashVendor)perim=perim.filter(s=>s.constructeur===_dashVendor);
+  const perimSet=new Set(perim.map(s=>s.id));
+  let mvis=visScope.filter(v=>perimSet.has(v.site_id));
+  if(_dashEng)mvis=mvis.filter(v=>v.ingenieur_id===_dashEng);
+  const audited=new Set(mvis.map(v=>v.site_id));
+  const cov=perim.length?Math.round(audited.size/perim.length*100):0;
+  const visIds=new Set(mvis.map(v=>v.id));
+  const open=DASH_ACTIONS.filter(a=>visIds.has(a.visite_id)&&(a.etat==='Ouverte'||a.etat==='En cours'));
+  const critIds=[...new Set(mvis.filter(v=>v.etat_pylone==='Critique'||v.etat_pylone==='Dégradé').map(v=>v.site_id))];
+  // par priorité
+  const prio={Critique:0,Haute:0,Normale:0,Faible:0}; open.forEach(a=>{if(prio[a.priorite]!=null)prio[a.priorite]++;});
+  const prioCol={Critique:'var(--crit)',Haute:'#f59e0b',Normale:'var(--info)',Faible:'var(--tx3)'};
+  // par porteur
+  const por={}; open.forEach(a=>{const k=porName(a.porteur_id)||'—';por[k]=(por[k]||0)+1;});
+  // visites par semaine (8 dernières)
+  const wk={}; mvis.forEach(v=>{const ws=weekStart(v.date_visite); const key=ws.toISOString().slice(0,10); wk[key]=(wk[key]||0)+1;});
+  const wkKeys=Object.keys(wk).sort().slice(-8);
+  const wkObj={}; wkKeys.forEach(k=>{const d=new Date(k);wkObj[d.getDate()+'/'+(d.getMonth()+1)]=wk[k];});
+  // statuts
+  const st={}; mvis.forEach(v=>{st[v.statut]=(st[v.statut]||0)+1;});
+  const critList=critIds.map(id=>{const s=SITES.find(x=>x.id===id);return s?`<div class="site-row" onclick="openSite('${id.replace(/'/g,"\\'")}')"><div class="dot" style="background:var(--crit)"></div><div class="nm"><b>${s.nom_site}</b><span>${s.region||''}</span></div><div class="tag">${s.constructeur||''}</div></div>`:'';}).join('');
+
+  document.getElementById('dash-body').innerHTML=`
+    <div class="kpis">
+      <div class="kpi"><div class="kn">${cov}%</div><div class="kl">Couverture (${audited.size}/${perim.length})</div><div class="covbar"><i style="width:${cov}%"></i></div></div>
+      <div class="kpi"><div class="kn">${mvis.length}</div><div class="kl">Visites</div></div>
+      <div class="kpi ${open.length?'warn':''}"><div class="kn">${open.length}</div><div class="kl">Actions ouvertes</div></div>
+      <div class="kpi ${critIds.length?'crit':''}"><div class="kn">${critIds.length}</div><div class="kl">Sites critiques</div></div>
+    </div>
+    <div class="dash-sec"><h4>Actions ouvertes par priorité</h4>${bars(prio,k=>prioCol[k])}</div>
+    <div class="dash-sec"><h4>Actions ouvertes par porteur</h4>${Object.keys(por).length?bars(por,()=> 'var(--brand)'):'<div class="mmeta">Aucune action ouverte</div>'}</div>
+    <div class="dash-sec"><h4>Visites par semaine</h4>${Object.keys(wkObj).length?bars(wkObj,()=> 'var(--info)'):'<div class="mmeta">Aucune visite</div>'}</div>
+    <div class="dash-sec"><h4>Visites par statut</h4>${Object.keys(st).length?bars(st,()=> 'var(--tx3)'):'<div class="mmeta">—</div>'}</div>
+    <div class="dash-sec"><h4>Sites critiques (${critIds.length})</h4>${critList||'<div class="mmeta">Aucun</div>'}</div>`;
+}
+
+/* ============ SERVICE WORKER (pattern GeoMission) ============ */
+let _swReloading=false;
+if('serviceWorker' in navigator && location.protocol!=='file:' && !location.hostname.includes('claudeusercontent.com')){
+  navigator.serviceWorker.register('./sw.js').then(reg=>{
+    reg.addEventListener('updatefound',()=>{
+      const nw=reg.installing;
+      nw.addEventListener('statechange',function(){
+        if(this.state==='installed'&&navigator.serviceWorker.controller){
+          navigator.serviceWorker.ready.then(r=>r.waiting&&r.waiting.postMessage('SKIP_WAITING'));
+        }
+      });
+    });
+  }).catch(e=>console.warn('SW',e));
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!_swReloading){_swReloading=true;location.reload();}});
+}
+
+/* ============ BOOT ============ */
+(async function boot(){
+  try{await openIDB();}catch(e){}
+  initMap();
+  const saved=localStorage.getItem('ra_eng');
+  setTimeout(async()=>{
+    document.getElementById('splash').classList.add('out');
+    if(saved){
+      ENG=JSON.parse(saved);
+      document.getElementById('mm-eng').textContent=ENG.nom;
+      document.getElementById('h-eng').textContent=ENG.nom;
+      const sm=localStorage.getItem('ra_mission');
+      if(sm){ try{enterMission(JSON.parse(sm).id);}catch(e){show('missions');loadMissions();} }
+      else { show('missions');loadMissions(); }
+    }else{
+      show('login');initLogin();
+    }
+  },700);
+})();
+</script>
+</body>
+</html>

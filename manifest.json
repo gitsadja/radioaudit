@@ -1,0 +1,26 @@
+{
+  "name": "RadioAudit — Orange Sonatel",
+  "short_name": "RadioAudit",
+  "description": "Audit terrain des sites radio — Orange Sonatel",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#FF6600",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%23FF6600'/%3E%3Cpath d='M96 44 L96 150' stroke='white' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M70 70 a36 36 0 0 1 52 0' fill='none' stroke='white' stroke-width='9' stroke-linecap='round'/%3E%3Cpath d='M58 56 a54 54 0 0 1 76 0' fill='none' stroke='white' stroke-width='9' stroke-linecap='round' opacity='0.55'/%3E%3Ccircle cx='96' cy='150' r='12' fill='white'/%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%23FF6600'/%3E%3Cpath d='M256 120 L256 400' stroke='white' stroke-width='26' stroke-linecap='round'/%3E%3Cpath d='M188 188 a96 96 0 0 1 136 0' fill='none' stroke='white' stroke-width='24' stroke-linecap='round'/%3E%3Cpath d='M156 152 a144 144 0 0 1 200 0' fill='none' stroke='white' stroke-width='24' stroke-linecap='round' opacity='0.55'/%3E%3Ccircle cx='256' cy='400' r='32' fill='white'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "productivity"]
+}
