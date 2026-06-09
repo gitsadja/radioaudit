@@ -1,4 +1,4 @@
-const CACHE = 'radioaudit-v2';
+const CACHE = 'radioaudit-v3';
 const LOCAL_ASSETS = [
   './db.js',
   './leaflet.min.css',

@@ -194,22 +194,43 @@ header{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var
 .act-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .act-grid .full{grid-column:1/3;}
 .act-card input,.act-card select,.act-card textarea{padding:9px 10px;font-size:13px;}
-.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:18px;}
-.kpi{background:var(--bg2);border-radius:12px;padding:13px;}
-.kpi .kn{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1;}
-.kpi .kl{font-size:11px;color:var(--tx3);margin-top:5px;}
-.kpi.crit .kn{color:var(--crit);} .kpi.warn .kn{color:#a06b00;} .kpi.ok .kn{color:var(--ok);}
-.covbar{height:10px;background:var(--bg3);border-radius:6px;overflow:hidden;margin-top:8px;}
-.covbar i{display:block;height:100%;background:var(--brand);transition:width .3s;}
-.dash-sec{margin-bottom:18px;}
-.dash-sec h4{font-size:12px;font-weight:800;color:var(--tx2);text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:10px;letter-spacing:.4px;}
-.bar-row{display:flex;align-items:center;gap:9px;margin-bottom:7px;}
-.bar-row .bl{font-size:12px;width:92px;flex:none;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.bar-row .bt{flex:1;height:18px;background:var(--bg3);border-radius:5px;overflow:hidden;}
-.bar-row .bt i{display:block;height:100%;border-radius:5px;min-width:2px;}
-.bar-row .bv{font-size:12px;font-family:'JetBrains Mono',monospace;width:28px;text-align:right;flex:none;}
-.dash-filters{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;}
-.dash-filters select{padding:7px 9px;font-size:12px;width:auto;flex:none;}
+#dash-body{background:var(--bg2);}
+.hero{display:flex;align-items:center;gap:16px;background:var(--bg);border:1px solid var(--brd);border-radius:16px;padding:16px;box-shadow:var(--sh);margin-bottom:12px;}
+.donut{width:108px;height:108px;flex:none;}
+.dt-track{fill:none;stroke:var(--bg3);stroke-width:11;}
+.dt-arc{fill:none;stroke:var(--brand);stroke-width:11;stroke-linecap:round;transform:rotate(-90deg);transform-origin:60px 60px;transition:stroke-dasharray .6s ease;}
+.dt-num{font-family:'JetBrains Mono',monospace;font-size:25px;font-weight:800;fill:var(--tx);text-anchor:middle;dominant-baseline:central;}
+.hero-lbl{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;}
+.hero-big{font-size:19px;font-weight:800;margin-top:3px;}
+.hero-meta{font-size:12px;color:var(--tx3);margin-top:4px;font-family:'JetBrains Mono',monospace;}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px;}
+.stat{background:var(--bg);border:1px solid var(--brd);border-top:3px solid var(--info);border-radius:12px;padding:12px 11px;box-shadow:var(--sh);}
+.stat.warn{border-top-color:#f59e0b;} .stat.crit{border-top-color:var(--crit);}
+.stat .sn{font-size:23px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1;}
+.stat.warn .sn{color:#a06b00;} .stat.crit .sn{color:var(--crit);}
+.stat .sl{font-size:10px;color:var(--tx3);margin-top:5px;line-height:1.2;}
+.dash-sec{background:var(--bg);border:1px solid var(--brd);border-radius:14px;padding:15px;margin-bottom:12px;box-shadow:var(--sh);}
+.dash-sec h4{font-size:11px;font-weight:800;color:var(--tx2);text-transform:uppercase;font-family:'JetBrains Mono',monospace;margin-bottom:12px;letter-spacing:.5px;display:flex;align-items:center;gap:7px;}
+.dash-sec h4 .tot{margin-left:auto;color:var(--tx3);font-weight:600;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.bar-row:last-child{margin-bottom:0;}
+.bar-row .bl{font-size:12px;width:96px;flex:none;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.bar-row .bl .ld{width:8px;height:8px;border-radius:50%;flex:none;}
+.bar-row .bt{flex:1;height:9px;background:var(--bg3);border-radius:6px;overflow:hidden;}
+.bar-row .bt i{display:block;height:100%;border-radius:6px;min-width:3px;transition:width .4s ease;}
+.bar-row .bv{font-size:13px;font-weight:700;font-family:'JetBrains Mono',monospace;width:26px;text-align:right;flex:none;}
+.dash-filters{display:flex;gap:7px;padding:10px 12px;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto;background:var(--bg);}
+.dash-filters select{padding:8px 10px;font-size:12px;width:auto;flex:none;border-radius:20px;background:var(--bg2);font-weight:600;}
+.eng-pick{display:flex;flex-wrap:wrap;gap:6px;}
+.eng-chip{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border:1px solid var(--brd);border-radius:18px;font-size:12px;background:var(--bg2);cursor:pointer;}
+.eng-chip.on{background:var(--brand-lt);border-color:var(--brand);color:var(--brand-dk);font-weight:600;}
+.eng-chip input{margin:0;width:14px;height:14px;}
+.role-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;vertical-align:middle;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.3px;}
+.rb-admin{background:#fde2e2;color:#b42318;} .rb-manager{background:var(--brand-lt);color:var(--brand-dk);} .rb-agent{background:var(--bg3);color:var(--tx2);}
+.mcard{display:flex;align-items:stretch;gap:0;}
+.mcard-main{flex:1;cursor:pointer;min-width:0;}
+.mcard-edit{flex:none;align-self:center;width:38px;height:38px;border:1px solid var(--brd);background:var(--bg2);border-radius:10px;cursor:pointer;font-size:15px;margin-left:10px;}
+.mcard-edit:active{background:var(--bg3);}
 </style>
 </head>
 <body>
@@ -226,11 +247,15 @@ header{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var
   <div class="login-card">
     <h1>RadioAudit</h1>
     <div class="sub">Audit terrain des sites radio</div>
-    <div>
-      <label class="fld">Ingénieur</label>
-      <select id="login-eng"><option value="">Chargement…</option></select>
+    <div class="fld-grp">
+      <label class="fld">Identifiant</label>
+      <input id="login-user" placeholder="identifiant" autocomplete="username">
     </div>
-    <button class="btn" id="login-btn" onclick="doLogin()" disabled>Entrer</button>
+    <div class="fld-grp">
+      <label class="fld">Mot de passe</label>
+      <input id="login-pwd" type="password" placeholder="mot de passe" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn" id="login-btn" onclick="doLogin()">Entrer</button>
     <div id="login-conn" class="sub" style="text-align:center;"></div>
   </div>
 </div>
@@ -244,7 +269,7 @@ header{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var
   </header>
   <div class="adm-body" style="padding-top:14px;">
     <button class="btn" style="width:100%;margin-bottom:8px;" onclick="openMissionEdit()">+ Nouvelle mission</button>
-    <button class="btn sec" style="width:100%;margin-bottom:14px;" onclick="openDash()">📊 Vue pilotage (toutes missions)</button>
+    <button class="btn sec role-global" style="width:100%;margin-bottom:14px;" onclick="openDash()">📊 Vue pilotage (toutes missions)</button>
     <div id="mm-list"></div>
   </div>
 </div>
@@ -265,6 +290,7 @@ header{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var
       <div><span class="mini-lbl">Responsable</span><select id="me-resp"></select></div>
       <div><span class="mini-lbl">Statut</span><select id="me-statut"><option>En préparation</option><option>En cours</option><option>Terminée</option></select></div>
     </div>
+    <div class="fld-grp"><span class="mini-lbl">Ingénieurs assignés (verront cette mission)</span><div id="me-engs" class="eng-pick"></div></div>
     <div class="sd-sub">Périmètre — <span id="me-count">0</span> site(s) sélectionné(s)</div>
     <button class="btn sec sm" style="margin-bottom:8px;" onclick="document.getElementById('me-file').click()">📋 Importer une liste (sites ou secteurs)</button>
     <input type="file" id="me-file" accept=".xlsx,.xls,.csv,.tsv,.txt" style="display:none" onchange="importSiteList(this.files[0])">
@@ -295,7 +321,8 @@ header{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var
     <button class="hbtn" onclick="show('missions');loadMissions();" title="Changer de mission">↔</button>
     <button class="hbtn" onclick="loadAndRender()" title="Rafraîchir">⟳</button>
     <button class="hbtn" onclick="openDash()" title="Pilotage">📊</button>
-    <button class="hbtn" onclick="openAdmin()" title="Admin">⚙</button>
+    <button class="hbtn role-admin" onclick="openAdmin()" title="Admin">⚙</button>
+    <button class="hbtn" onclick="logout()" title="Déconnexion">⎋</button>
   </header>
   <div id="map"></div>
   <div class="sheet">
@@ -344,17 +371,25 @@ header{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var
     <!-- INGENIEURS -->
     <div class="panel" id="panel-ing">
       <div class="add-card">
-        <h3>Ajouter un ingénieur / technicien</h3>
+        <h3 id="ing-formtitle">Ajouter un ingénieur / technicien</h3>
         <div class="fld-grp"><input id="ing-nom" placeholder="Nom complet"></div>
         <div class="row2 fld-grp">
           <select id="ing-fct"><option>Ingénieur</option><option>Technicien</option></select>
-          <input id="ing-eq" placeholder="Équipe">
+          <select id="ing-role"><option>Agent</option><option>Manager</option><option>Admin</option></select>
         </div>
         <div class="row2 fld-grp">
+          <input id="ing-eq" placeholder="Équipe">
           <input id="ing-mat" placeholder="Matricule">
-          <input id="ing-log" placeholder="Login">
         </div>
-        <button class="btn" onclick="addIng()">Ajouter</button>
+        <div class="row2 fld-grp">
+          <input id="ing-log" placeholder="Identifiant (login)">
+          <input id="ing-pwd" type="text" placeholder="Mot de passe">
+        </div>
+        <div class="note" style="margin-bottom:8px;">Le rôle définit les droits. Le mot de passe : laisser vide en édition = inchangé.</div>
+        <div class="row2 fld-grp">
+          <button class="btn" id="ing-save" onclick="addIng()">Ajouter</button>
+          <button class="btn sec" id="ing-cancel" onclick="resetIngForm()" style="display:none;">Annuler</button>
+        </div>
       </div>
       <div id="ing-list"></div>
     </div>
@@ -413,8 +448,8 @@ header{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var
 <script>
 /* ============ ÉTAT ============ */
 let ENG = null, SITES = [], VISITES = [], SITE_STATUS = {};
-let ACTIVE_MISSION=null, MISSIONS=[], MISSION_SITES=new Set(), _pickSet=new Set();
-let _listLimit=50, _pickLimit=50;
+let ACTIVE_MISSION=null, MISSIONS=[], MISSION_SITES=new Set(), _pickSet=new Set(), _missionEngMap=new Map();
+let _listLimit=50, _pickLimit=50, _editMissionId=null, _meEngs=new Set();
 let map, canvasR, markers = {};
 let curConstr = 'all', searchQ = '';
 
@@ -447,28 +482,45 @@ async function checkConn(){
 }
 
 /* ============ LOGIN ============ */
+async function sha256(s){ const b=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
 async function initLogin(){
-  const sel = document.getElementById('login-eng');
-  try{
-    const engs = await DB.getIngenieurs();
-    sel.innerHTML = '<option value="">— Choisir —</option>' +
-      engs.map(e=>`<option value="${e.id}" data-nom="${e.nom_complet}" data-log="${e.login||''}">${e.nom_complet} · ${e.fonction||''}</option>`).join('');
-    document.getElementById('login-btn').disabled=false;
-    document.getElementById('login-conn').textContent='Connecté à Supabase ✓';
-    sel.onchange=()=>{document.getElementById('login-btn').disabled=!sel.value;};
-  }catch(err){
-    sel.innerHTML='<option value="">Erreur de connexion</option>';
-    document.getElementById('login-conn').textContent='⚠ '+err.message;
-  }
+  const c=document.getElementById('login-conn');
+  document.getElementById('login-user').value=''; document.getElementById('login-pwd').value='';
+  c.textContent='Connexion…';
+  try{ await DB.ping(); c.textContent='Connecté à Supabase ✓'; }
+  catch(e){ c.textContent='⚠ '+e.message; }
 }
-function doLogin(){
-  const sel=document.getElementById('login-eng');const o=sel.options[sel.selectedIndex];
-  if(!sel.value)return;
-  ENG={id:sel.value,nom:o.dataset.nom,login:o.dataset.log};
-  localStorage.setItem('ra_eng',JSON.stringify(ENG));
-  document.getElementById('mm-eng').textContent=ENG.nom;
-  document.getElementById('h-eng').textContent=ENG.nom;
-  show('missions');loadMissions();
+async function doLogin(){
+  const u=document.getElementById('login-user').value.trim();
+  const p=document.getElementById('login-pwd').value;
+  const c=document.getElementById('login-conn');
+  if(!u||!p){c.textContent='Identifiant et mot de passe requis';return;}
+  c.textContent='Vérification…';
+  try{
+    const h=await sha256(p);
+    const rows=await DB.getIngByLogin(u);
+    const e=(rows||[]).find(x=>(x.login||'').toLowerCase()===u.toLowerCase());
+    if(!e){ c.textContent='⚠ Identifiant inconnu'; return; }
+    if(!e.pwd_hash){ c.textContent='⚠ Aucun mot de passe défini — voir l\'administrateur'; return; }
+    if(e.pwd_hash!==h){ c.textContent='⚠ Mot de passe incorrect'; return; }
+    ENG={id:e.id,nom:e.nom_complet,login:e.login,role:e.role||'Agent'};
+    localStorage.setItem('ra_eng',JSON.stringify(ENG));
+    applyRole();
+    document.getElementById('mm-eng').textContent=ENG.nom+' · '+ENG.role;
+    document.getElementById('h-eng').textContent=ENG.nom;
+    show('missions');loadMissions();
+  }catch(err){ c.textContent='⚠ '+err.message; }
+}
+function applyRole(){
+  const r=ENG?ENG.role:'Agent';
+  const isAdmin=r==='Admin', canGlobal=(r==='Admin'||r==='Manager');
+  document.querySelectorAll('.role-admin').forEach(el=>el.style.display=isAdmin?'':'none');
+  document.querySelectorAll('.role-global').forEach(el=>el.style.display=canGlobal?'':'none');
+}
+function canEditMission(m){ if(!ENG)return false; if(ENG.role==='Admin'||ENG.role==='Manager')return true; return m.responsable_id===ENG.id || (_missionEngMap.get(m.id)&&_missionEngMap.get(m.id).has(ENG.id)); }
+function visibleMissions(){
+  if(!ENG||ENG.role==='Admin'||ENG.role==='Manager')return MISSIONS;
+  return MISSIONS.filter(m=>m.responsable_id===ENG.id||(_missionEngMap.get(m.id)&&_missionEngMap.get(m.id).has(ENG.id)));
 }
 function logout(){ localStorage.removeItem('ra_eng');localStorage.removeItem('ra_mission');ENG=null;ACTIVE_MISSION=null;show('login');initLogin(); }
 
@@ -480,15 +532,21 @@ async function loadMissions(){
   const box=document.getElementById('mm-list');box.innerHTML='<div class="empty">Chargement…</div>';
   try{
     MISSIONS=await DB.getMissions();
-    if(!MISSIONS.length){box.innerHTML='<div class="empty">Aucune mission. Créez-en une ↑</div>';return;}
-    box.innerHTML=MISSIONS.map(m=>`<div class="mcard" onclick="enterMission('${m.id}')">
-      <b>${esc(m.nom)}</b>
-      <div class="mmeta">${m.statut||''}${m.date_cible?' · cible '+frDate(m.date_cible):''}${m.responsable_id?' · '+engName(m.responsable_id):''}</div>
-      <div class="cov"><i id="covbar-${m.id}" style="width:0"></i></div>
-      <div class="mmeta" id="cov-${m.id}">périmètre…</div>
+    _missionEngMap=new Map();
+    try{ (await DB.getAllMissionEngineers()).forEach(r=>{ if(!_missionEngMap.has(r.mission_id))_missionEngMap.set(r.mission_id,new Set()); _missionEngMap.get(r.mission_id).add(r.ingenieur_id); }); }catch(e){}
+    const list=visibleMissions();
+    if(!list.length){box.innerHTML='<div class="empty">Aucune mission'+((ENG&&ENG.role==='Agent')?' qui vous est attribuée':'')+'. Créez-en une ↑</div>';return;}
+    box.innerHTML=list.map(m=>`<div class="mcard">
+      <div class="mcard-main" onclick="enterMission('${m.id}')">
+        <b>${esc(m.nom)}</b>
+        <div class="mmeta">${m.statut||''}${m.date_cible?' · cible '+frDate(m.date_cible):''}${m.responsable_id?' · '+engName(m.responsable_id):''}</div>
+        <div class="cov"><i id="covbar-${m.id}" style="width:0"></i></div>
+        <div class="mmeta" id="cov-${m.id}">périmètre…</div>
+      </div>
+      ${canEditMission(m)?`<button class="mcard-edit" onclick="event.stopPropagation();openMissionEdit('${m.id}')" title="Modifier">✎</button>`:''}
     </div>`).join('');
     const allVis=await DB.getVisites().catch(()=>[]);
-    for(const m of MISSIONS){
+    for(const m of list){
       try{
         const ids=(await DB.getMissionSiteIds(m.id)).map(x=>x.site_id);
         const aud=new Set(allVis.filter(v=>v.mission_id===m.id).map(v=>v.site_id));
@@ -506,6 +564,10 @@ async function enterMission(id){
   let m=MISSIONS.find(x=>x.id===id);
   if(!m){ try{MISSIONS=await DB.getMissions();m=MISSIONS.find(x=>x.id===id);}catch(e){} }
   if(!m){toast('Mission introuvable');return;}
+  if(ENG&&ENG.role==='Agent'&&!_missionEngMap.size){
+    try{ (await DB.getAllMissionEngineers()).forEach(r=>{ if(!_missionEngMap.has(r.mission_id))_missionEngMap.set(r.mission_id,new Set()); _missionEngMap.get(r.mission_id).add(r.ingenieur_id); }); }catch(e){}
+  }
+  if(ENG&&ENG.role==='Agent'&&!visibleMissions().some(x=>x.id===id)){toast('Mission non autorisée');show('missions');loadMissions();return;}
   ACTIVE_MISSION=m;
   localStorage.setItem('ra_mission',JSON.stringify({id:m.id,nom:m.nom}));
   try{ MISSION_SITES=new Set((await DB.getMissionSiteIds(id)).map(x=>x.site_id)); }catch(e){ MISSION_SITES=new Set(); }
@@ -514,22 +576,42 @@ async function enterMission(id){
   show('main');loadAndRender();
 }
 
-async function openMissionEdit(){
+async function openMissionEdit(id){
   await Promise.all([ensureIngs(),ensureSites()]);
-  _pickSet=new Set();
-  document.getElementById('me-nom').value='';
-  document.getElementById('me-debut').value=today();
-  document.getElementById('me-cible').value='';
-  document.getElementById('me-resp').innerHTML='<option value="">— responsable —</option>'+ingOptions(ENG&&ENG.id);
-  document.getElementById('me-statut').value='En préparation';
+  _editMissionId = (typeof id==='string') ? id : null;
+  _pickSet=new Set(); _meEngs=new Set();
   const regs=[...new Set(SITES.map(s=>s.region).filter(Boolean))].sort();
   document.getElementById('me-region').innerHTML='<option value="">Toutes régions</option>'+regs.map(r=>`<option>${esc(r)}</option>`).join('');
   document.getElementById('me-search').value='';
   document.getElementById('me-imp').innerHTML='';
+  document.getElementById('me-statut').innerHTML='<option>En préparation</option><option>En cours</option><option>Terminée</option>';
+  if(_editMissionId){
+    const m=MISSIONS.find(x=>x.id===_editMissionId)||{};
+    document.getElementById('me-title').textContent='Modifier la mission';
+    document.getElementById('me-nom').value=m.nom||'';
+    document.getElementById('me-debut').value=(m.date_debut||'').slice(0,10);
+    document.getElementById('me-cible').value=(m.date_cible||'').slice(0,10);
+    document.getElementById('me-resp').innerHTML='<option value="">— responsable —</option>'+ingOptions(m.responsable_id);
+    document.getElementById('me-statut').value=m.statut||'En préparation';
+    try{ (await DB.getMissionSiteIds(_editMissionId)).forEach(r=>_pickSet.add(r.site_id)); }catch(e){}
+    try{ (await DB.getMissionEngineers(_editMissionId)).forEach(r=>_meEngs.add(r.ingenieur_id)); }catch(e){}
+  }else{
+    document.getElementById('me-title').textContent='Nouvelle mission';
+    document.getElementById('me-nom').value='';
+    document.getElementById('me-debut').value=today();
+    document.getElementById('me-cible').value='';
+    document.getElementById('me-resp').innerHTML='<option value="">— responsable —</option>'+ingOptions(ENG&&ENG.id);
+    document.getElementById('me-statut').value='En préparation';
+  }
+  renderEngPick();
   _pickLimit=PAGE;
   renderPicker();
   show('mission-edit');
 }
+function renderEngPick(){
+  document.getElementById('me-engs').innerHTML=(_INGS||[]).map(e=>`<label class="eng-chip ${_meEngs.has(e.id)?'on':''}"><input type="checkbox" ${_meEngs.has(e.id)?'checked':''} onchange="toggleEng('${e.id}',this.checked)">${esc(e.nom_complet)}</label>`).join('')||'<span class="mmeta">Aucun ingénieur</span>';
+}
+function toggleEng(id,on){ if(on)_meEngs.add(id);else _meEngs.delete(id); renderEngPick(); }
 function pickFiltered(){
   const q=norm(document.getElementById('me-search').value);
   const rg=document.getElementById('me-region').value;
@@ -607,10 +689,15 @@ async function saveMission(){
   if(!_pickSet.size){toast('Sélectionne au moins un site');return;}
   const btn=document.getElementById('me-save');btn.disabled=true;btn.textContent='…';
   try{
-    const res=await DB.saveMission({nom,date_debut:document.getElementById('me-debut').value||null,date_cible:document.getElementById('me-cible').value||null,statut:document.getElementById('me-statut').value,responsable_id:document.getElementById('me-resp').value||null});
-    const mid=res&&res[0]&&res[0].id;
+    const payload={nom,date_debut:document.getElementById('me-debut').value||null,date_cible:document.getElementById('me-cible').value||null,statut:document.getElementById('me-statut').value,responsable_id:document.getElementById('me-resp').value||null};
+    if(_editMissionId)payload.id=_editMissionId;
+    const res=await DB.saveMission(payload);
+    const mid=_editMissionId||(res&&res[0]&&res[0].id);
     await DB.setMissionSites(mid,[..._pickSet]);
-    toast('✓ Mission créée');show('missions');loadMissions();
+    await DB.setMissionEngineers(mid,[..._meEngs]);
+    toast(_editMissionId?'✓ Mission mise à jour':'✓ Mission créée');
+    _editMissionId=null;
+    show('missions');loadMissions();
   }catch(e){toast('⚠ '+e.message);}
   finally{btn.disabled=false;btn.textContent='Enregistrer';}
 }
@@ -700,8 +787,8 @@ function setConstr(el){document.querySelectorAll('#chips-constr .chip').forEach(
 
 /* ---- SITE DETAIL ---- */
 /* ----- contexte site courant + référentiels ----- */
-let _CUR=null, _INGS=null, _editId=null;
-let DASH_ACTIONS=[], _dashRegion='', _dashVendor='', _dashEng='', _dashScope='', _perimByMission=new Map(), _perimAll=new Set();
+let _CUR=null, _INGS=null, _editId=null, _editIngId=null;
+let DASH_ACTIONS=[], _dashRegion='', _dashVendor='', _dashEng='', _dashScope='', _perimByMission=new Map(), _perimAll=new Set(), _dashAllowed=new Set();
 let _vmedia=[], _delActions=[], _PORS=null;
 const STATUT_OPTS=['Planifiée','En cours','Complétée','À reprendre'];
 const PYLONE_OPTS=['Haubané','Autostable','Mât sur terrasse','Autre'];
@@ -1126,9 +1213,13 @@ async function runImport(){
 async function loadRefs(){
   try{
     const ings=await DB.getIngenieurs();
+    _INGS=ings;
     document.getElementById('ing-list').innerHTML=ings.map(e=>`<div class="ref-row">
-      <div class="ri"><b>${e.nom_complet}</b><span>${e.fonction||''} ${e.login?'· '+e.login:''} ${e.equipe?'· '+e.equipe:''}</span></div>
-      <button class="btn sec sm" onclick="delIng('${e.id}','${(e.nom_complet||'').replace(/'/g,"")}')">Suppr.</button>
+      <div class="ri"><b>${e.nom_complet} <span class="role-badge rb-${(e.role||'Agent').toLowerCase()}">${e.role||'Agent'}</span></b><span>${e.fonction||''} ${e.login?'· '+e.login:'· (sans login)'} ${e.pwd_hash?'· 🔑':'· ⚠ sans mdp'}</span></div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn sec sm" onclick='editIng(${JSON.stringify(e.id)})'>Éditer</button>
+        <button class="btn sec sm" onclick="delIng('${e.id}','${(e.nom_complet||'').replace(/'/g,"")}')">Suppr.</button>
+      </div>
     </div>`).join('')||'<div class="empty">Aucun</div>';
     const pors=await DB.getPorteurs();
     document.getElementById('por-list').innerHTML=pors.map(p=>`<div class="ref-row">
@@ -1137,13 +1228,45 @@ async function loadRefs(){
     </div>`).join('')||'<div class="empty">Aucun</div>';
   }catch(e){toast('⚠ '+e.message);}
 }
+function resetIngForm(){
+  _editIngId=null;
+  ['ing-nom','ing-eq','ing-mat','ing-log','ing-pwd'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('ing-fct').value='Ingénieur';
+  document.getElementById('ing-role').value='Agent';
+  document.getElementById('ing-formtitle').textContent='Ajouter un ingénieur / technicien';
+  document.getElementById('ing-save').textContent='Ajouter';
+  document.getElementById('ing-cancel').style.display='none';
+  document.getElementById('ing-pwd').placeholder='Mot de passe';
+}
+function editIng(id){
+  const e=(_INGS||[]).find(x=>x.id===id);if(!e)return;
+  _editIngId=id;
+  document.getElementById('ing-nom').value=e.nom_complet||'';
+  document.getElementById('ing-fct').value=e.fonction||'Ingénieur';
+  document.getElementById('ing-role').value=e.role||'Agent';
+  document.getElementById('ing-eq').value=e.equipe||'';
+  document.getElementById('ing-mat').value=e.matricule||'';
+  document.getElementById('ing-log').value=e.login||'';
+  document.getElementById('ing-pwd').value='';
+  document.getElementById('ing-pwd').placeholder='Mot de passe (vide = inchangé)';
+  document.getElementById('ing-formtitle').textContent='Modifier '+e.nom_complet;
+  document.getElementById('ing-save').textContent='Enregistrer';
+  document.getElementById('ing-cancel').style.display='';
+  document.querySelector('#panel-ing .add-card').scrollIntoView({behavior:'smooth',block:'start'});
+}
 async function addIng(){
   const nom=document.getElementById('ing-nom').value.trim();if(!nom){toast('Nom requis');return;}
-  try{await DB.addIngenieur({nom_complet:nom,fonction:document.getElementById('ing-fct').value,equipe:document.getElementById('ing-eq').value.trim()||null,matricule:document.getElementById('ing-mat').value.trim()||null,login:document.getElementById('ing-log').value.trim()||null});
-    ['ing-nom','ing-eq','ing-mat','ing-log'].forEach(i=>document.getElementById(i).value='');toast('✓ Ajouté');loadRefs();
+  const pwd=document.getElementById('ing-pwd').value;
+  const data={nom_complet:nom,fonction:document.getElementById('ing-fct').value,role:document.getElementById('ing-role').value,
+    equipe:document.getElementById('ing-eq').value.trim()||null,matricule:document.getElementById('ing-mat').value.trim()||null,login:document.getElementById('ing-log').value.trim()||null};
+  try{
+    if(pwd)data.pwd_hash=await sha256(pwd);
+    if(_editIngId){ await DB.updateIngenieur(_editIngId,data); toast('✓ Mis à jour'); }
+    else{ await DB.addIngenieur(data); toast('✓ Ajouté'); }
+    _INGS=null; resetIngForm(); loadRefs();
   }catch(e){toast('⚠ '+e.message);}
 }
-async function delIng(id,nom){if(!confirm('Supprimer '+nom+' ?'))return;try{await DB.delIngenieur(id);toast('Supprimé');loadRefs();}catch(e){toast('⚠ '+e.message);}}
+async function delIng(id,nom){if(!confirm('Supprimer '+nom+' ?'))return;try{await DB.delIngenieur(id);_INGS=null;toast('Supprimé');loadRefs();}catch(e){toast('⚠ '+e.message);}}
 async function addPor(){
   const code=document.getElementById('por-code').value.trim();if(!code){toast('Code requis');return;}
   try{await DB.addPorteur({code,libelle:document.getElementById('por-lib').value.trim()||null});
@@ -1158,24 +1281,27 @@ function weekStart(d){ const dt=new Date(String(d).slice(0,10)); const day=(dt.g
 function bars(obj,colorFn,max){
   const keys=Object.keys(obj); if(!keys.length)return '<div class="mmeta">Aucune donnée</div>';
   const mx=max||Math.max(1,...keys.map(k=>obj[k]));
-  return keys.map(k=>`<div class="bar-row"><span class="bl">${esc(k)}</span><div class="bt"><i style="width:${Math.round(obj[k]/mx*100)}%;background:${colorFn(k)}"></i></div><span class="bv">${obj[k]}</span></div>`).join('');
+  return keys.map(k=>{const col=colorFn(k);return `<div class="bar-row"><span class="bl"><span class="ld" style="background:${col}"></span>${esc(k)}</span><div class="bt"><i style="width:${Math.round(obj[k]/mx*100)}%;background:${col}"></i></div><span class="bv">${obj[k]}</span></div>`;}).join('');
 }
 async function openDash(){
   show('dash');
   await Promise.all([ensureIngs(),ensurePorteurs(),ensureSites()]);
-  if(!MISSIONS.length){ try{MISSIONS=await DB.getMissions();}catch(e){} }
+  if(!MISSIONS.length){ try{MISSIONS=await DB.getMissions(); _missionEngMap=new Map(); (await DB.getAllMissionEngineers()).forEach(r=>{ if(!_missionEngMap.has(r.mission_id))_missionEngMap.set(r.mission_id,new Set()); _missionEngMap.get(r.mission_id).add(r.ingenieur_id); }); }catch(e){} }
+  const vis=visibleMissions();
+  _dashAllowed=new Set(vis.map(m=>m.id));
   document.getElementById('dash-body').innerHTML='<div class="empty">Calcul…</div>';
   const sc=document.getElementById('dash-scope');
-  sc.innerHTML='<option value="">Toutes les missions</option>'+MISSIONS.map(m=>`<option value="${m.id}">${esc(m.nom)}</option>`).join('');
-  sc.value=ACTIVE_MISSION?ACTIVE_MISSION.id:'';
+  const allLbl=(ENG&&ENG.role==='Agent')?'Toutes mes missions':'Toutes les missions';
+  sc.innerHTML=`<option value="">${allLbl}</option>`+vis.map(m=>`<option value="${m.id}">${esc(m.nom)}</option>`).join('');
+  sc.value=(ACTIVE_MISSION&&_dashAllowed.has(ACTIVE_MISSION.id))?ACTIVE_MISSION.id:'';
   const regs=[...new Set(SITES.map(s=>s.region).filter(Boolean))].sort();
   document.getElementById('dash-region').innerHTML='<option value="">Toutes régions</option>'+regs.map(r=>`<option>${esc(r)}</option>`).join('');
   document.getElementById('dash-eng').innerHTML='<option value="">Tous ingénieurs</option>'+(_INGS||[]).map(e=>`<option value="${e.id}">${esc(e.nom_complet)}</option>`).join('');
   try{
-    const [acts,perim,vis]=await Promise.all([DB.getActions(),DB.getAllMissionSites(),DB.getVisites()]);
-    DASH_ACTIONS=acts; VISITES=vis;
+    const [acts,perim,vall]=await Promise.all([DB.getActions(),DB.getAllMissionSites(),DB.getVisites()]);
+    DASH_ACTIONS=acts; VISITES=vall;
     _perimByMission=new Map(); _perimAll=new Set();
-    perim.forEach(r=>{ if(!_perimByMission.has(r.mission_id))_perimByMission.set(r.mission_id,new Set()); _perimByMission.get(r.mission_id).add(r.site_id); _perimAll.add(r.site_id); });
+    perim.forEach(r=>{ if(!_perimByMission.has(r.mission_id))_perimByMission.set(r.mission_id,new Set()); _perimByMission.get(r.mission_id).add(r.site_id); if(_dashAllowed.has(r.mission_id))_perimAll.add(r.site_id); });
   }catch(e){ DASH_ACTIONS=[]; }
   renderDash();
 }
@@ -1184,9 +1310,10 @@ function renderDash(){
   _dashRegion=document.getElementById('dash-region').value;
   _dashVendor=document.getElementById('dash-vendor').value;
   _dashEng=document.getElementById('dash-eng').value;
-  document.getElementById('dash-mission').textContent=_dashScope?((MISSIONS.find(m=>m.id===_dashScope)||{}).nom||'Mission'):'Toutes les missions';
+  const allLbl=(ENG&&ENG.role==='Agent')?'Toutes mes missions':'Toutes les missions';
+  document.getElementById('dash-mission').textContent=_dashScope?((MISSIONS.find(m=>m.id===_dashScope)||{}).nom||'Mission'):allLbl;
   const perimIds=_dashScope?(_perimByMission.get(_dashScope)||new Set()):_perimAll;
-  let visScope=_dashScope?VISITES.filter(v=>v.mission_id===_dashScope):VISITES.slice();
+  let visScope=_dashScope?VISITES.filter(v=>v.mission_id===_dashScope):VISITES.filter(v=>_dashAllowed.has(v.mission_id));
   let perim=SITES.filter(s=>perimIds.has(s.id));
   if(_dashRegion)perim=perim.filter(s=>s.region===_dashRegion);
   if(_dashVendor)perim=perim.filter(s=>s.constructeur===_dashVendor);
@@ -1211,18 +1338,30 @@ function renderDash(){
   const st={}; mvis.forEach(v=>{st[v.statut]=(st[v.statut]||0)+1;});
   const critList=critIds.map(id=>{const s=SITES.find(x=>x.id===id);return s?`<div class="site-row" onclick="openSite('${id.replace(/'/g,"\\'")}')"><div class="dot" style="background:var(--crit)"></div><div class="nm"><b>${s.nom_site}</b><span>${s.region||''}</span></div><div class="tag">${s.constructeur||''}</div></div>`:'';}).join('');
 
+  const C=314.159, arc=(cov/100*C).toFixed(1);
   document.getElementById('dash-body').innerHTML=`
-    <div class="kpis">
-      <div class="kpi"><div class="kn">${cov}%</div><div class="kl">Couverture (${audited.size}/${perim.length})</div><div class="covbar"><i style="width:${cov}%"></i></div></div>
-      <div class="kpi"><div class="kn">${mvis.length}</div><div class="kl">Visites</div></div>
-      <div class="kpi ${open.length?'warn':''}"><div class="kn">${open.length}</div><div class="kl">Actions ouvertes</div></div>
-      <div class="kpi ${critIds.length?'crit':''}"><div class="kn">${critIds.length}</div><div class="kl">Sites critiques</div></div>
+    <div class="hero">
+      <svg viewBox="0 0 120 120" class="donut">
+        <circle cx="60" cy="60" r="50" class="dt-track"></circle>
+        <circle cx="60" cy="60" r="50" class="dt-arc" style="stroke-dasharray:${arc} ${C}"></circle>
+        <text x="60" y="61" class="dt-num">${cov}%</text>
+      </svg>
+      <div>
+        <div class="hero-lbl">Taux de couverture</div>
+        <div class="hero-big">${audited.size} / ${perim.length} sites audités</div>
+        <div class="hero-meta">${mvis.length} visite(s)</div>
+      </div>
     </div>
-    <div class="dash-sec"><h4>Actions ouvertes par priorité</h4>${bars(prio,k=>prioCol[k])}</div>
-    <div class="dash-sec"><h4>Actions ouvertes par porteur</h4>${Object.keys(por).length?bars(por,()=> 'var(--brand)'):'<div class="mmeta">Aucune action ouverte</div>'}</div>
-    <div class="dash-sec"><h4>Visites par semaine</h4>${Object.keys(wkObj).length?bars(wkObj,()=> 'var(--info)'):'<div class="mmeta">Aucune visite</div>'}</div>
-    <div class="dash-sec"><h4>Visites par statut</h4>${Object.keys(st).length?bars(st,()=> 'var(--tx3)'):'<div class="mmeta">—</div>'}</div>
-    <div class="dash-sec"><h4>Sites critiques (${critIds.length})</h4>${critList||'<div class="mmeta">Aucun</div>'}</div>`;
+    <div class="stats3">
+      <div class="stat"><div class="sn">${mvis.length}</div><div class="sl">Visites</div></div>
+      <div class="stat ${open.length?'warn':''}"><div class="sn">${open.length}</div><div class="sl">Actions ouvertes</div></div>
+      <div class="stat ${critIds.length?'crit':''}"><div class="sn">${critIds.length}</div><div class="sl">Sites critiques</div></div>
+    </div>
+    <div class="dash-sec"><h4>Actions ouvertes · priorité <span class="tot">${open.length}</span></h4>${bars(prio,k=>prioCol[k])}</div>
+    <div class="dash-sec"><h4>Actions ouvertes · porteur</h4>${Object.keys(por).length?bars(por,()=>'var(--brand)'):'<div class="mmeta">Aucune action ouverte</div>'}</div>
+    <div class="dash-sec"><h4>Visites par semaine</h4>${Object.keys(wkObj).length?bars(wkObj,()=>'var(--info)'):'<div class="mmeta">Aucune visite</div>'}</div>
+    <div class="dash-sec"><h4>Visites par statut</h4>${Object.keys(st).length?bars(st,()=>'var(--brand-dk)'):'<div class="mmeta">—</div>'}</div>
+    <div class="dash-sec"><h4>Sites critiques <span class="tot">${critIds.length}</span></h4>${critList||'<div class="mmeta">Aucun</div>'}</div>`;
 }
 
 /* ============ SERVICE WORKER (pattern GeoMission) ============ */
@@ -1250,7 +1389,9 @@ if('serviceWorker' in navigator && location.protocol!=='file:' && !location.host
     document.getElementById('splash').classList.add('out');
     if(saved){
       ENG=JSON.parse(saved);
-      document.getElementById('mm-eng').textContent=ENG.nom;
+      if(!ENG.role)ENG.role='Agent';
+      applyRole();
+      document.getElementById('mm-eng').textContent=ENG.nom+' · '+ENG.role;
       document.getElementById('h-eng').textContent=ENG.nom;
       const sm=localStorage.getItem('ra_mission');
       if(sm){ try{enterMission(JSON.parse(sm).id);}catch(e){show('missions');loadMissions();} }

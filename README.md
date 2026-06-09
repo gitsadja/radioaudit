@@ -1,4 +1,4 @@
-# RadioAudit — Orange Sonatel 
+# RadioAudit — Orange Sonatel
 
 Audit terrain des sites radio. PWA offline-first, backend Supabase (POC), modèle **mission-centric**.
 

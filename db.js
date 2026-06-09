@@ -83,6 +83,7 @@ const DB = (() => {
     getSecteurs: (sid) => selectAll('secteurs', sid ? `select=*&site_id=eq.${encodeURIComponent(sid)}&order=nom_secteur` : 'select=*&order=nom_secteur'),
 
     getIngenieurs:   ()      => select('ingenieurs', 'select=*&order=nom_complet'),
+    getIngByLogin:   (login) => select('ingenieurs', 'select=*&login=eq.' + encodeURIComponent(login)),
     addIngenieur:    (o)     => insert('ingenieurs', Object.assign({ id: uuid() }, o)),
     updateIngenieur: (id, p) => update('ingenieurs', id, p),
     delIngenieur:    (id)    => remove('ingenieurs', id),
@@ -123,6 +124,12 @@ const DB = (() => {
     async setMissionSites(mid, siteIds) {
       await _fetch(`mission_sites?mission_id=eq.${encodeURIComponent(mid)}`, { method: 'DELETE', headers: headers() });
       if (siteIds.length) await insertBatched('mission_sites', siteIds.map(s => ({ mission_id: mid, site_id: s })), { size: 500 });
+    },
+    getAllMissionEngineers: () => selectAll('mission_engineers', 'select=mission_id,ingenieur_id'),
+    getMissionEngineers:    (mid) => selectAll('mission_engineers', `select=ingenieur_id&mission_id=eq.${encodeURIComponent(mid)}`),
+    async setMissionEngineers(mid, engIds) {
+      await _fetch(`mission_engineers?mission_id=eq.${encodeURIComponent(mid)}`, { method: 'DELETE', headers: headers() });
+      if (engIds.length) await insertBatched('mission_engineers', engIds.map(e => ({ mission_id: mid, ingenieur_id: e })), { size: 500 });
     },
 
     /* secteur ajouté sur le terrain (origine = terrain) */
